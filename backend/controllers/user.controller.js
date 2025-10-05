@@ -3,6 +3,8 @@ import { Post } from "../models/post.model.js";
 import { Comment } from "../models/comment.model.js";
 import { Conversation } from "../models/conversation.model.js";
 import { Message } from "../models/message.model.js";
+import mongoose from "mongoose";
+
 
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
@@ -540,13 +542,18 @@ export const removeUser = async (req, res) => {
             return res.status(404)
             .json({ message: 'User not found', success: false });
         }
+        // Get user's post IDs BEFORE deleting posts (for bookmark cleanup)
         const userPosts = await Post.find({ author: userIdToRemove })
-        .select('_id').session(session);
+            .select('_id').session(session);
         const userPostIds = userPosts.map(post => post._id);
 
-        await Promise.all([
+        // Perform all cleanup operations in parallel
+        const cleanupOperations = [
+            // Delete user's content
             Post.deleteMany({ author: userIdToRemove }, { session }),
             Comment.deleteMany({ author: userIdToRemove }, { session }),
+            
+            // Clean social connections
             User.updateMany(
                 { followers: userIdToRemove },
                 { $pull: { followers: userIdToRemove } },
@@ -557,11 +564,15 @@ export const removeUser = async (req, res) => {
                 { $pull: { following: userIdToRemove } },
                 { session }
             ),
+            
+            // Remove user from post interactions
             Post.updateMany(
                 { likes: userIdToRemove },
                 { $pull: { likes: userIdToRemove } },
                 { session }
             ),
+            
+            // Delete messaging data
             Conversation.deleteMany(
                 { participants: userIdToRemove },
                 { session }
@@ -575,14 +586,21 @@ export const removeUser = async (req, res) => {
                 },
                 { session }
             )
-        ]);
+        ];
+
+        // Add bookmark cleanup if user had posts
         if (userPostIds.length > 0) {
-            await User.updateMany(
-                { bookmarks: { $in: userPostIds } },
-                { $pull: { bookmarks: { $in: userPostIds } } },
-                { session }
+            cleanupOperations.push(
+                User.updateMany(
+                    { bookmarks: { $in: userPostIds } },
+                    { $pull: { bookmarks: { $in: userPostIds } } },
+                    { session }
+                )
             );
         }
+
+        // Execute all cleanup operations
+        await Promise.all(cleanupOperations);
         await User.findByIdAndDelete(userIdToRemove, { session });
         await session.commitTransaction();
         return res.status(200).json({ 

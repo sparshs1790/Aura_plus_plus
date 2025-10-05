@@ -523,65 +523,81 @@ export const followOrUnfollowUser = async(req,res)=>{
 }
 
 export const removeUser = async (req, res) => {
+    const session = await mongoose.startSession();
+    session.startTransaction();
     try {
         const SPECIAL_USER_ID = process.env.SPECIAL_USER_ID;
         const currentUserId = req.id; // logged-in user's id
         const userIdToRemove = req.params.id; // user to be removed
-
-        // Only allow special user to remove others
         if (currentUserId !== SPECIAL_USER_ID) {
-            return res.status(403).json({ message: 'Forbidden', success: false });
+            await session.abortTransaction();
+            return res.status(403)
+            .json({ message: 'Forbidden', success: false });
         }
-
-        const user = await User.findById(userIdToRemove);
+        const user = await User.findById(userIdToRemove).session(session);
         if (!user) {
-            return res.status(404).json({ message: 'User not found', success: false });
+            await session.abortTransaction();
+            return res.status(404)
+            .json({ message: 'User not found', success: false });
         }
+        const userPosts = await Post.find({ author: userIdToRemove })
+        .select('_id').session(session);
+        const userPostIds = userPosts.map(post => post._id);
 
-        // Delete user's posts
-        await Post.deleteMany({ author: userIdToRemove });
-        // Delete user's comments
-        await Comment.deleteMany({ author: userIdToRemove });
-        // Delete user
-        await User.findByIdAndDelete(userIdToRemove);
-
-        // Missing cleanups:
-        // 1. Remove user from other users' followers/following arrays
-        await User.updateMany(
-            { followers: userIdToRemove },
-            { $pull: { followers: userIdToRemove } }
-        );
-        await User.updateMany(
-            { following: userIdToRemove },
-            { $pull: { following: userIdToRemove } }
-        );
-
-        // 2. Remove user from post likes
-        await Post.updateMany(
-            { likes: userIdToRemove },
-            { $pull: { likes: userIdToRemove } }
-        );
-
-        // 3. Handle conversations/messages
-        await Conversation.deleteMany({
-            participants: userIdToRemove
+        await Promise.all([
+            Post.deleteMany({ author: userIdToRemove }, { session }),
+            Comment.deleteMany({ author: userIdToRemove }, { session }),
+            User.updateMany(
+                { followers: userIdToRemove },
+                { $pull: { followers: userIdToRemove } },
+                { session }
+            ),
+            User.updateMany(
+                { following: userIdToRemove },
+                { $pull: { following: userIdToRemove } },
+                { session }
+            ),
+            Post.updateMany(
+                { likes: userIdToRemove },
+                { $pull: { likes: userIdToRemove } },
+                { session }
+            ),
+            Conversation.deleteMany(
+                { participants: userIdToRemove },
+                { session }
+            ),
+            Message.deleteMany(
+                {
+                    $or: [
+                        { senderId: userIdToRemove },
+                        { receiverId: userIdToRemove }
+                    ]
+                },
+                { session }
+            )
+        ]);
+        if (userPostIds.length > 0) {
+            await User.updateMany(
+                { bookmarks: { $in: userPostIds } },
+                { $pull: { bookmarks: { $in: userPostIds } } },
+                { session }
+            );
+        }
+        await User.findByIdAndDelete(userIdToRemove, { session });
+        await session.commitTransaction();
+        return res.status(200).json({ 
+            message: 'User and all associated data removed successfully', 
+            success: true 
         });
-        await Message.deleteMany({
-            $or: [
-                { senderId: userIdToRemove },
-                { receiverId: userIdToRemove }
-            ]
-        });
 
-        // 4. Remove from bookmarks
-        await User.updateMany(
-            { bookmarks: { $in: userPostIds } },
-            { $pull: { bookmarks: { $in: userPostIds } } }
-        );
-
-        return res.status(200).json({ message: 'User removed successfully', success: true });
     } catch (error) {
-        console.log(error);
-        return res.status(500).json({ message: 'Internal server error', success: false });
+        await session.abortTransaction();
+        console.log('Error in removeUser:', error);
+        return res.status(500).json({ 
+            message: 'Failed to remove user. All operations have been rolled back.', 
+            success: false 
+        });
+    } finally {
+        session.endSession();
     }
 };

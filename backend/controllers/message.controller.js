@@ -7,19 +7,15 @@ import { io } from "../socket/socket.js";
 // for chatting
 export const sendMessage = async (req,res) => {
     try {
-        const senderId = req.id; // ye id isAuthenticated se araha hai
+        const senderId = req.id;
         const receiverId = req.params.id;
         const {textMessage:message} = req.body;
       
         let conversation = await Conversation.findOne({
             participants:{$all:[senderId, receiverId]}
-            //ye $all mongoose ka operator hai..jo dono id ko check krega
         });
 
-
-        // establish the conversation if not started yet.
         if(!conversation){
-            //if not found..create a new conversation
             conversation = await Conversation.create({
                 participants:[senderId, receiverId]
             })
@@ -35,15 +31,16 @@ export const sendMessage = async (req,res) => {
 
         await Promise.all([conversation.save(),newMessage.save()])
 
-        // Socket.io real-time message
+       
         const receiverSocketId = getReceiverSocketId(receiverId);
         if (receiverSocketId) {
-            // Send message to specific user
+           
             io.to(receiverSocketId).emit('newMessage', newMessage);
 
-            // Also send a lightweight message notification
             try {
-                const sender = await User.findById(senderId).select('username profilePicture');
+                const sender = await User.findById(senderId)
+                .select('username profilePicture');
+                 
                 const messageNotification = {
                     type: 'message',
                     userId: senderId,
@@ -53,14 +50,11 @@ export const sendMessage = async (req,res) => {
                 };
                 io.to(receiverSocketId).emit('messageNotification', messageNotification);
             } catch (e) {
-                // ignore notification errors to not block message delivery
             }
         }
-
         return res.status(201).json({
-            success:true,
-            newMessage
-        })
+            success:true, newMessage})
+            
     } catch (error) {
         console.log(error);
         return res.status(500).json({

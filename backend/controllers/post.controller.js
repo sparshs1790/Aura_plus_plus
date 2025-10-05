@@ -82,6 +82,7 @@ export const getAllPosts = async (req, res) => {
             viewerId ? User.find({ isPrivate: true, followers: viewerId }).distinct('_id') : Promise.resolve([]),
         ]);
 
+        /// this ... is a spread operator
         const allowedAuthorIds = [
             ...publicUserIds,
             ...(viewerId ? [viewerId] : []),
@@ -289,7 +290,7 @@ export const addComment = async (req,res) =>{
 export const getCommentsOfPost = async (req,res) => {
     try {
         const postId = req.params.id;
-//through the post id..we will find all the comments 
+
         const comments = await Comment.find({post:postId}).populate('author', 'username profilePicture');
 
         if(!comments) return res.status(404).json({message:'No comments found for this post', success:false});

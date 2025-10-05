@@ -4,7 +4,10 @@ import { Comment } from "../models/comment.model.js";
 import { Conversation } from "../models/conversation.model.js";
 import { Message } from "../models/message.model.js";
 import mongoose from "mongoose";
+<<<<<<< HEAD
 
+=======
+>>>>>>> 7d02e99 (Aura vidoe)
 
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";

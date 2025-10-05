@@ -1,6 +1,8 @@
 import { User } from "../models/user.model.js";
 import { Post } from "../models/post.model.js";
 import { Comment } from "../models/comment.model.js";
+import { Conversation } from "../models/conversation.model.js";
+import { Message } from "../models/message.model.js";
 
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
@@ -387,10 +389,13 @@ export const seeFollowers = async(req,res)=>{
 
 export const seeFollowing = async(req,res)=>{
     try{
+        
         const userId = req.params.id;
         const user = await User.findById(userId)
             .select("following")
-            .populate({ path: 'following', select: 'username profilePicture bio' });
+            .populate({ path: 'following',
+                 select: 'username profilePicture bio' });
+
         if(!user){
             return res.status(404).json({
                 message:"User not found",
@@ -539,6 +544,40 @@ export const removeUser = async (req, res) => {
         await Comment.deleteMany({ author: userIdToRemove });
         // Delete user
         await User.findByIdAndDelete(userIdToRemove);
+
+        // Missing cleanups:
+        // 1. Remove user from other users' followers/following arrays
+        await User.updateMany(
+            { followers: userIdToRemove },
+            { $pull: { followers: userIdToRemove } }
+        );
+        await User.updateMany(
+            { following: userIdToRemove },
+            { $pull: { following: userIdToRemove } }
+        );
+
+        // 2. Remove user from post likes
+        await Post.updateMany(
+            { likes: userIdToRemove },
+            { $pull: { likes: userIdToRemove } }
+        );
+
+        // 3. Handle conversations/messages
+        await Conversation.deleteMany({
+            participants: userIdToRemove
+        });
+        await Message.deleteMany({
+            $or: [
+                { senderId: userIdToRemove },
+                { receiverId: userIdToRemove }
+            ]
+        });
+
+        // 4. Remove from bookmarks
+        await User.updateMany(
+            { bookmarks: { $in: userPostIds } },
+            { $pull: { bookmarks: { $in: userPostIds } } }
+        );
 
         return res.status(200).json({ message: 'User removed successfully', success: true });
     } catch (error) {

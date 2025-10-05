@@ -8,11 +8,10 @@
 
 **Aura** is a full-featured Instagram clone built with modern web technologies. Experience social media like never before with real-time messaging, photo sharing, and seamless user interactions.
 
-<<<<<<< HEAD
-![Aura Preview](Aura.gif.gif)
-=======
-![Aura Preview](./Aura/Aura.png)
->>>>>>> 7d02e99 (Aura vidoe)
+
+
+![Aura Preview](Aura_video.gif)
+
 
 ## ✨ Features
 
@@ -304,7 +303,7 @@ Project Link: [https://github.com/sparshsharma81/Aura](https://github.com/sparsh
 
 <div align="center">
   <b>⭐ Star this repository if you found it helpful! ⭐</b>
-<<<<<<< HEAD
+
 </div>
 =======
 </div>

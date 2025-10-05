@@ -8,7 +8,7 @@
 
 **Aura** is a full-featured Instagram clone built with modern web technologies. Experience social media like never before with real-time messaging, photo sharing, and seamless user interactions.
 
-![Aura Preview](./Aura/Aura.png)
+![Aura Preview](Aura.gif.gif)
 
 ## ✨ Features
 

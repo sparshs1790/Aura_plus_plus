@@ -303,7 +303,7 @@ export const getSuggestedUsers = async(req,res)=>{
     try{
         const SuggestedUsers = await User.find({ _id: { $ne: req.id } })
         .select("-password")
-        .limit(10);
+        .limit(15);
 
 
         if(SuggestedUsers.length == 0){

@@ -62,8 +62,10 @@ const Login = () => {
         <div className='flex items-center w-screen h-screen justify-center'>
             <form onSubmit={loginHandler} className='shadow-lg flex flex-col gap-5 p-8'>
                 <div className='my-4'>
-                        <img src="/Aura1.png" alt="Aura Logo" className="w-40 h-30 mx-auto mb-2" />
-                    <h1 className='text-center font-bold text-xl'>Aura++</h1>
+
+                    
+                        <img src="/aur3.png" alt="Aura Logo" className="w-40 h-30 mx-auto mb-2" />
+                    {/* <h1 className='text-center font-bold text-xl'>Aura++</h1> */}
                     <p className='text-sm text-center'>Login to see photos & videos from your friends</p>
                 </div>
                 <div>

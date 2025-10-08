@@ -14,6 +14,7 @@ const CommentDialog = ({ open, setOpen }) => {
   const [text, setText] = useState("");
   const { selectedPost, posts } = useSelector(store => store.post);
   const [comment, setComment] = useState([]);
+   const { user } = useSelector(store => store.auth);
   const dispatch = useDispatch();
  const url = import.meta.env.VITE_URL || 'http://localhost:5000';
   useEffect(() => {
@@ -57,27 +58,19 @@ const CommentDialog = ({ open, setOpen }) => {
     }
   }
 
-  const deletePostHandler = async () => {
-    if (!selectedPost) return;
-    const confirmDelete = window.confirm('Are you sure you want to delete this post?');
-    if (!confirmDelete) return;
-
-    try {
-      const res = await axios.delete(`${url}/api/v1/post/delete/${selectedPost._id}`, {
-        withCredentials: true
-      });
-
-      if (res.data.success) {
-        const updatedPostData = posts.filter(p => p._id !== selectedPost._id);
-        dispatch(setPosts(updatedPostData));
-        toast.success(res.data.message || 'Post deleted');
-        setOpen(false);
-      }
-    } catch (error) {
-      console.error('Failed to delete post:', error);
-      toast.error(error?.response?.data?.message || 'Failed to delete post');
+   const deletePostHandler = async () => {
+        try {
+            const res = await axios.delete(`${url}/api/v1/post/delete/${post?._id}`, { withCredentials: true })
+            if (res.data.success) {
+                const updatedPostData = posts.filter((postItem) => postItem?._id !== post?._id);
+                dispatch(setPosts(updatedPostData));
+                toast.success(res.data.message);
+            }
+        } catch (error) {
+            console.log(error);
+            toast.error(error.response.data.message);
+        }
     }
-  }
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -121,9 +114,11 @@ const CommentDialog = ({ open, setOpen }) => {
                   <div className='cursor-pointer w-full'>
                     Add to favorites
                   </div>
-                  <div className='cursor-pointer w-full text-red-600' onClick={deletePostHandler} role="button" tabIndex={0}>
-                    Delete
-                  </div>
+                 {
+                            (user && (user?._id === post?.author?._id || user?._id === SPECIAL_USER_ID)) && (
+                                            <Button onClick={deletePostHandler} variant='ghost' className="cursor-pointer w-fit">Delete</Button>
+                                            )
+                                        }
                 </DialogContent>
               </Dialog>
             </div>

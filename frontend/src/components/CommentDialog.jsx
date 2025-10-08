@@ -57,6 +57,28 @@ const CommentDialog = ({ open, setOpen }) => {
     }
   }
 
+  const deletePostHandler = async () => {
+    if (!selectedPost) return;
+    const confirmDelete = window.confirm('Are you sure you want to delete this post?');
+    if (!confirmDelete) return;
+
+    try {
+      const res = await axios.delete(`${url}/api/v1/post/delete/${selectedPost._id}`, {
+        withCredentials: true
+      });
+
+      if (res.data.success) {
+        const updatedPostData = posts.filter(p => p._id !== selectedPost._id);
+        dispatch(setPosts(updatedPostData));
+        toast.success(res.data.message || 'Post deleted');
+        setOpen(false);
+      }
+    } catch (error) {
+      console.error('Failed to delete post:', error);
+      toast.error(error?.response?.data?.message || 'Failed to delete post');
+    }
+  }
+
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogContent className="max-w-5xl p-0.5 transform scale-125 flex flex-col">
@@ -98,6 +120,9 @@ const CommentDialog = ({ open, setOpen }) => {
                   </div>
                   <div className='cursor-pointer w-full'>
                     Add to favorites
+                  </div>
+                  <div className='cursor-pointer w-full text-red-600' onClick={deletePostHandler} role="button" tabIndex={0}>
+                    Delete
                   </div>
                 </DialogContent>
               </Dialog>

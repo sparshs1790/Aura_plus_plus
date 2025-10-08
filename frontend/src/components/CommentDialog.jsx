@@ -57,20 +57,22 @@ const CommentDialog = ({ open, setOpen }) => {
       console.log(error);
     }
   }
+const deletePostHandler = async () => {
+  try {
+    const res = await axios.delete(`${url}/api/v1/post/delete/${selectedPost?._id}`, { withCredentials: true });
 
-   const deletePostHandler = async () => {
-        try {
-            const res = await axios.delete(`${url}/api/v1/post/delete/${post?._id}`, { withCredentials: true })
-            if (res.data.success) {
-                const updatedPostData = posts.filter((postItem) => postItem?._id !== post?._id);
-                dispatch(setPosts(updatedPostData));
-                toast.success(res.data.message);
-            }
-        } catch (error) {
-            console.log(error);
-            toast.error(error.response.data.message);
-        }
+    if (res.data.success) {
+      const updatedPostData = posts.filter((postItem) => postItem?._id !== selectedPost?._id);
+      dispatch(setPosts(updatedPostData));
+      toast.success(res.data.message);
     }
+  } catch (error) {
+    console.log(error);
+    toast.error(error.response?.data?.message || "Something went wrong");
+  }
+};
+
+     const SPECIAL_USER_ID = import.meta.env.VITE_SPECIAL_USER_ID || '68d37e416d154171a2ebc9e7';
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -115,7 +117,8 @@ const CommentDialog = ({ open, setOpen }) => {
                     Add to favorites
                   </div>
                  {
-                            (user && (user?._id === post?.author?._id || user?._id === SPECIAL_USER_ID)) && (
+                           (user && (user?._id === selectedPost?.author?._id || user?._id === SPECIAL_USER_ID))
+ && (
                                             <Button onClick={deletePostHandler} variant='ghost' className="cursor-pointer w-fit">Delete</Button>
                                             )
                                         }

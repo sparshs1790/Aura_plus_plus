@@ -1,0 +1,31 @@
+avatar.jsx — Line-by-line, token-level explanation (for absolute beginners)
+
+File: frontend/src/components/ui/avatar.jsx
+Goal: Explain the small avatar UI primitives used across the app: `Avatar`, `AvatarImage`, and `AvatarFallback`.
+
+--- Top imports ---
+1) import React from 'react'
+- Import React so we can use JSX and return components.
+
+--- Component primitives ---
+2) export const Avatar = ({ children, className = '' }) => (
+    <div className={`inline-flex items-center justify-center overflow-hidden rounded-full ${className}`}>{children}</div>
+)
+- `Avatar` is a simple wrapper that gives a circular container for a user's picture or initials.
+- `children` allows any nested element (an <img> or initials text) to be passed in.
+- `className` lets callers add or override styling.
+
+3) export const AvatarImage = ({ src, alt = '' }) => (
+    <img src={src} alt={alt} className='w-8 h-8 object-cover' />
+)
+- `AvatarImage` renders an <img> inside the avatar. It uses fixed width/height and object-fit to crop the image.
+
+4) export const AvatarFallback = ({ children }) => (
+    <div className='w-8 h-8 flex items-center justify-center bg-gray-200 text-sm text-gray-700'>{children}</div>
+)
+- `AvatarFallback` is shown when an image isn't available; it displays initials or an icon.
+
+--- Beginner summary ---
+- These tiny primitives keep avatar markup consistent. Use `<Avatar><AvatarImage src=.../></Avatar>` for photos, or `<Avatar><AvatarFallback>AB</AvatarFallback></Avatar>` for initials.
+
+End of avatar doc.

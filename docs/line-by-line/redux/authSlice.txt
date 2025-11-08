@@ -1,0 +1,35 @@
+authSlice.js — Line-by-line, token-level explanation (for absolute beginners)
+
+File: frontend/src/redux/authSlice.js
+Goal: Explain how authentication state is represented and updated via Redux Toolkit slice.
+
+--- Top imports ---
+1) import { createSlice } from '@reduxjs/toolkit'
+- `createSlice` is a helper from Redux Toolkit to define a reducer and its actions together.
+
+--- Slice definition ---
+2) const initialState = { user: null, token: null }
+- The `initialState` has `user` (the authenticated user's data) and `token` (if used). Both start as null.
+
+3) const authSlice = createSlice({
+    name: 'auth',
+    initialState,
+    reducers: {
+        setAuthUser(state, action) { state.user = action.payload },
+        clearAuth(state) { state.user = null; state.token = null }
+    }
+})
+- `createSlice` creates action creators and reducer logic:
+  - `setAuthUser` stores a user object into `state.user`.
+  - `clearAuth` resets user and token to null.
+
+4) export const { setAuthUser, clearAuth } = authSlice.actions
+- Export the generated action creators so other parts of the app can dispatch `setAuthUser(user)`.
+
+5) export default authSlice.reducer
+- Export the reducer to be included in the Redux store.
+
+--- Beginner summary ---
+- `authSlice.js` centralizes auth state. Dispatch `setAuthUser(user)` to save a logged-in user or `clearAuth()` to log out.
+
+End of authSlice doc.

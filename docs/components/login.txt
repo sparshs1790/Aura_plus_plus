@@ -1,0 +1,44 @@
+Login.jsx — Step-by-step guide for absolute beginners
+
+File path: `frontend/src/components/Login.jsx`
+
+What this file does (plain language)
+- Shows a small form where returning users enter their email and password to sign into the app. After a successful sign-in, the app remembers the user so they can use protected features.
+
+What the user sees
+- Fields for email (or username) and password, and a Login button.
+- Optionally a "Remember me" checkbox and a link to reset password.
+
+Step-by-step: what happens when someone logs in
+1) The user types email and password
+	- These are simple text boxes. The code may hide the password characters while typing for privacy.
+
+2) The user clicks Login
+	- The browser sends an HTTP POST request to the server: "I want to log in with this email and password".
+
+3) The server checks the credentials
+	- If correct, the server returns a token (a secret string used to authenticate future requests) and user information.
+	- If incorrect, the server returns an error like "Invalid credentials".
+
+4) The app stores the token and user
+	- The token is stored in a safe place (Redux or localStorage, or preferably an httpOnly cookie set by the server).
+	- The app then navigates the user to the main page (Feed/Home).
+
+Why tokens exist (simple explanation)
+- Tokens are like a wristband you get at an event: once you have it, the app knows you are allowed to access restricted pages without asking for the password again.
+
+Common problems and what they mean
+- Wrong password message → The user typed incorrect credentials.
+- No network → The login request couldn't reach the server; check your internet or server status.
+
+How to test the Login flow (step-by-step for beginners)
+1. Open the Login page.
+2. Enter a valid email and password that exists in your database and click Login. You should be redirected to the home page.
+3. Try entering a wrong password; the page should show a clear error message.
+
+Security tips for maintainers (short)
+- When possible, use server-set httpOnly cookies for tokens to reduce XSS risk.
+- Avoid logging plaintext passwords; only send them over HTTPS.
+
+Where to go next
+- `docs/components/signup.txt` — to understand how new users register.

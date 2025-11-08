@@ -1,0 +1,59 @@
+CreatePost.jsx — Beginner-friendly explanation
+
+File path: frontend/src/components/CreatePost.jsx
+Purpose: UI and logic for creating a new post. This may be a modal or a form at the top of the feed. Handles image selection (via <input type="file"> or drag & drop), caption text, and upload to Cloudinary (or same media backend).
+
+Conceptual flow
+1. User chooses image(s) and writes a caption.
+2. Files are converted to FormData and uploaded to the backend or directly to Cloudinary.
+3. Backend returns the saved post object.
+4. Frontend updates feed (Redux `posts`) to include the new post so it appears immediately.
+
+--- Typical imports ---
+import React, { useState } from 'react'
+import axios from 'axios'
+import { useDispatch } from 'react-redux'
+import { setPosts } from '@/redux/postSlice'
+import { Button } from './ui/button'
+import { toast } from 'sonner'
+
+--- Local state ---
+- images (File[] or preview URLs)
+- caption (string)
+- uploading (boolean) to disable UI while uploading
+
+--- Key functions ---
+handleFileChange
+- Called when user picks files.
+- Stores previews (URL.createObjectURL) so the UI can show thumbnails.
+
+uploadPost
+- Build FormData: append image files and caption.
+- POST to `${url}/api/v1/post/create` with credentials and form data.
+- On success: dispatch(setPosts([newPost, ...existingPosts])) to put new post at the top, clear local state, show a success toast.
+- On failure: show error toast and re-enable UI.
+
+--- UX choices ---
+- Show image preview before upload.
+- Limit file size and number of images; validate on client side (e.g., max 5 files, max 10MB each).
+- Show progress bar if large uploads.
+
+--- Accessibility ---
+- Ensure file input has aria labels.
+- If modal, trap focus inside until created or cancelled.
+
+--- Testing ---
+1. Select a valid image and caption, click Post, confirm post appears in feed.
+2. Try invalid files (too big, wrong type) and confirm validation message.
+3. Simulate network failure and ensure UI recovers gracefully.
+
+--- Integration notes ---
+- Many apps upload images directly to Cloudinary from the client for speed, but you need an unsigned upload preset or a secure server-signed flow.
+- If uploading to backend, the backend should accept multipart/form-data, upload to Cloudinary, then save the post record.
+
+--- Security ---
+- If you allow direct client uploads to third-party services, follow the provider docs to avoid exposing secret API keys. Prefer server-signed uploads if you need control over presets or transformations.
+
+--- Next reading ---
+- `docs/components/post.txt` for how a created post is rendered in the feed
+- `docs/components/commentDialog.txt` to see how comments for the created post are handled

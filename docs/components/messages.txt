@@ -1,0 +1,45 @@
+Messages/Chat flow — Beginner-friendly guide
+
+File path: frontend/src/components/Messages.jsx (or Messages folder)
+Purpose: This area of the app shows a list of conversations (people you've chatted with) and lets you open a chat to exchange messages in real-time. It wires to the chat backend (via HTTP for history and Socket.io or polling for live messages).
+
+What a non-coder sees
+- A left column (conversation list) that shows other users' avatars and last message previews.
+- The center chat area which shows messages in order with timestamps and who sent each message.
+- An input at the bottom to type and send new messages.
+
+Plain-language step-by-step: how the chat works
+1) Load conversation list
+   - The app asks the server: "Which conversations does the current user have?" The server responds with a list like: "Conversation with Alice (last message: hi)".
+   - This list is shown in the left column; clicking any conversation opens it.
+2) Open a conversation
+   - The app fetches the message history for that conversation (e.g., last 50 messages) and shows them in the chat area.
+3) Sending a message
+   - The user types a message and presses Send.
+   - The message is sent to the server (and often to Socket.io so the receiver gets it immediately).
+   - The chat area appends the new message and scrolls to the bottom.
+4) Receiving messages in real-time
+   - When someone sends you a message, the server pushes it to your browser using a socket (real-time channel). The chat UI listens for new messages and adds them to the correct conversation.
+
+Why there are two steps (HTTP + socket)
+- HTTP (API call) fetches older messages (history).
+- Socket handles live updates so new messages appear instantly without needing to reload.
+
+Common beginner issues and straightforward fixes
+- Messages don’t arrive in real-time: Make sure the socket connection is open (network or server may be down).
+- Messages appear duplicated: The app might add the message locally (optimistic add) and then the server sends the same message back — de-duplication logic uses a message id.
+- Scroll stays at the top: Ensure the chat scrolls to the bottom when new messages arrive.
+
+How to test manually (step-by-step)
+1. Open two browser windows and log in as two different users.
+2. In Window A start a conversation with User B by sending a message.
+3. Confirm the message appears instantly in Window B.
+4. Send a message from Window B and confirm it appears in Window A.
+
+Notes for maintainers
+- Message objects typically include: _id, text, senderId, createdAt, readStatus.
+- Store conversations in Redux or local state depending on app architecture.
+- Implement graceful reconnect logic for sockets.
+
+Next reading
+- `docs/components/chatPage.txt` — detailed explanation of the chat page UI and message rendering.

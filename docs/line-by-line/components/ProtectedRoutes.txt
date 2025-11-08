@@ -1,0 +1,36 @@
+ProtectedRoutes.jsx — Line-by-line, token-level explanation (for absolute beginners)
+
+File: frontend/src/components/ProtectedRoutes.jsx
+Goal: Explain how the app prevents unauthenticated users from accessing certain routes.
+
+--- Top imports ---
+1) import React from 'react'
+- Import React.
+
+2) import { Navigate, Outlet } from 'react-router-dom'
+- `Navigate` redirects to another route.
+- `Outlet` renders nested routes when the user is allowed.
+
+3) import { useSelector } from 'react-redux'
+- Hook to read authentication state from Redux.
+
+--- Component ---
+4) const ProtectedRoutes = () => {
+- Define ProtectedRoutes component.
+
+5) const { user } = useSelector(s => s.auth)
+- Get `user` from auth slice. If `user` exists, the user is authenticated.
+
+6) if (!user) { return <Navigate to='/login' replace /> }
+- If there is no user, redirect to the `/login` page. `replace` avoids adding a history entry.
+
+7) return <Outlet />
+- If the user is authenticated, render the nested routes via `<Outlet />`.
+
+8) export default ProtectedRoutes
+- Export the component.
+
+--- Beginner summary ---
+- `ProtectedRoutes.jsx` blocks access when the user is not logged in by redirecting to `/login`; otherwise it allows the requested page to render.
+
+End of ProtectedRoutes line-by-line doc.

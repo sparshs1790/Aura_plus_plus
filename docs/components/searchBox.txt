@@ -1,0 +1,28 @@
+SearchBox.jsx — Beginner-friendly explanation
+
+File path: frontend/src/components/SearchBox.jsx
+Purpose: Small UI control used to search users or posts. Often appears in the header or explore page.
+
+What a non-coder sees
+- An input box with placeholder text like "Search". Typing yields suggestions in a dropdown.
+
+Step-by-step behavior
+1) User types a query into the box.
+2) The component waits a short moment (debounce) so it doesn't send a request on every keystroke.
+3) The component calls the server with the query and renders the returned suggestions in a dropdown.
+4) Clicking a suggestion navigates to the matched user's profile or post.
+
+Why debounce is used (simple)
+- To avoid sending too many requests while the user is still typing; it groups rapid keystrokes into a single search call.
+
+Testing steps
+1. Type a common name and confirm the dropdown shows matching users.
+2. Click a suggestion to ensure it navigates correctly.
+3. Test empty input — dropdown should hide.
+
+Developer notes
+- Use a 200–400ms debounce for good UX.
+- Consider adding keyboard navigation (arrow keys + Enter) for accessibility.
+
+Next reading
+- `docs/components/explore.txt` to see how search results might appear on the Explore page.

@@ -1,0 +1,60 @@
+App.jsx — Line-by-line, token-level explanation (for absolute beginners)
+
+File: frontend/src/App.jsx
+Goal: Explain how top-level routes and layout are organized and how protected routes are applied.
+
+--- Top imports ---
+1) import React from 'react'
+- Import React to use JSX.
+
+2) import { Routes, Route } from 'react-router-dom'
+- `Routes` and `Route` are used to declare client-side routes.
+
+3) import MainLayout from './components/MainLayout'
+- The app's main layout that includes sidebars and an Outlet for pages.
+
+4) import Home from './components/Home'
+- Home page component for the feed.
+
+5) import Login from './components/Login'
+- Login page.
+
+6) import Signup from './components/Signup'
+- Signup page.
+
+7) import ProtectedRoutes from './components/ProtectedRoutes'
+- Wrapper that blocks unauthenticated access and redirects to login.
+
+8) import Profile from './components/Profile'
+- User profile page.
+
+--- App component ---
+9) const App = () => {
+- Define the App functional component.
+
+10) return (
+    <Routes>
+        <Route path='/' element={<MainLayout />}>
+            <Route index element={<Home />} />
+            <Route path='profile/:id' element={<Profile />} />
+            {/* Other public/nested routes here */}
+        </Route>
+        <Route path='/login' element={<Login />} />
+        <Route path='/signup' element={<Signup />} />
+        {/* Example of protected route usage */}
+        <Route element={<ProtectedRoutes />}>
+            <Route path='/messages' element={<div>Messages page</div>} />
+        </Route>
+    </Routes>
+)
+- Top-level `Routes` organizes the app. The `MainLayout` is used for the main site chrome (left/right sidebars + content).
+- `index` route under `MainLayout` renders `Home` at `/`.
+- `ProtectedRoutes` wraps routes requiring authentication; inside it, nested routes render when allowed.
+
+11) export default App
+- Export the App component.
+
+--- Beginner summary ---
+- `App.jsx` maps URLs to components using React Router and composes the layout and protection wrappers. It's the app's route map.
+
+End of App.jsx doc.

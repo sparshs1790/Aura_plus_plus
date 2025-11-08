@@ -1,0 +1,24 @@
+utils.js — Line-by-line, token-level explanation (for absolute beginners)
+
+File: frontend/src/lib/utils.js
+Goal: Explain common helper functions used across the frontend, such as formatters and small utilities.
+
+--- Typical exports ---
+1) export const formatDate = (iso) => {
+    try { return new Date(iso).toLocaleString() } catch (e) { return iso }
+}
+- `formatDate` converts an ISO date string into a human-readable local date/time. If parsing fails it returns the original string.
+
+2) export const truncate = (text, len = 100) => {
+    if (!text) return ''
+    return text.length > len ? text.slice(0, len) + '...' : text
+}
+- `truncate` shortens long text for previews.
+
+3) export const uid = () => Math.random().toString(36).slice(2, 9)
+- `uid` returns a short random id string useful for keys in examples or small temporary ids (not cryptographically secure).
+
+--- Beginner summary ---
+- `utils.js` bundles tiny helpers so the same utility functions are reused across components instead of duplicated. They keep code DRY and simple.
+
+End of utils doc.

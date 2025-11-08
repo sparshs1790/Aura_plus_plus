@@ -1,0 +1,153 @@
+Post.jsx — Beginner-friendly, line-by-line explanation
+
+File path: frontend/src/components/Post.jsx
+Purpose: Renders a single post card in the feed/profile. Shows author info, image, like/comment/bookmark actions, and opens the Comment dialog.
+
+Quick React primer (short)
+- A React component is a JavaScript function that returns JSX (HTML-like elements). Components can hold state (useState) and run side effects (useEffect).
+- Props are values passed from parent components into a child (like Post receives a `post` object).
+- Redux is used here for central app state — useSelector reads state, useDispatch sends actions.
+
+Structure of the explanation
+- Top imports
+- Component signature and props
+- Local state variables and their purpose
+- Event handlers (like, comment, delete)
+- JSX structure and how user interactions wire to functions
+- Edge cases and testing notes
+
+--- Imports ---
+import React, { useState } from 'react'
+- React and useState hook for local component state (e.g., input text, like toggles).
+
+import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar'
+- Small re-usable avatar components (image with fallback).
+
+import { Dialog, DialogContent, DialogTrigger } from './ui/dialog'
+- Dialog building blocks — used to open the Comment dialog.
+
+import { Bookmark, MessageCircle, MoreHorizontal, Send } from 'lucide-react'
+- Icon components for buttons.
+
+import { Button } from './ui/button'
+- Styled Button component.
+
+import { FaHeart, FaRegHeart } from "react-icons/fa";
+- Heart icons for liked/unliked states.
+
+import CommentDialog from './CommentDialog'
+- The dialog component we documented earlier; opened to show comments and let the user add one.
+
+import { useDispatch, useSelector } from 'react-redux'
+- Redux hooks: useSelector reads store; useDispatch dispatches actions.
+
+import axios from 'axios'
+- HTTP client for network calls (like/dislike, delete, comment).
+
+import { toast } from 'sonner'
+- Toast notifications to show small messages on success/error.
+
+import { setPosts, setSelectedPost } from '@/redux/postSlice'
+- Redux actions for updating posts and the currently selected post.
+
+import { Badge } from './ui/badge'
+- Small badge UI used to label the post author.
+
+import { Link } from 'react-router-dom';
+- Link navigates within the app router without a full page reload.
+
+--- Component signature ---
+const Post = ({ post }) => {
+- The Post component receives a single prop `post` (an object from the backend that includes image, author, likes, comments, caption, etc.).
+
+--- Local state and hooks ---
+const [text, setText] = useState("");
+- For the inline small comment input at the bottom of the post card.
+
+const [open, setOpen] = useState(false);
+- Controls whether the CommentDialog is open for this post.
+
+const { user } = useSelector(store => store.auth);
+- Get current authenticated user from Redux `auth` slice.
+
+const { posts } = useSelector(store => store.post);
+- Get global posts array from Redux `post` slice.
+
+const [liked, setLiked] = useState(post.likes.includes(user?._id) || false);
+- Local boolean for whether this user liked the post (initial value derived from post.likes array).
+
+const [postLike, setPostLike] = useState(post.likes.length);
+- Local count of likes to show immediately when toggled.
+
+const [comment, setComment] = useState(post.comments);
+- Local copy of this post's comments.
+
+const dispatch = useDispatch();
+- Redux dispatch function to fire actions.
+
+const url = import.meta.env.VITE_URL || 'http://localhost:5000';
+- Base API URL (from Vite env or default to local backend).
+
+--- Event handlers explained ---
+likeOrDislikeHandler
+- Toggles like/dislike for the post.
+- Steps:
+  1. Determine action string: 'dislike' if liked currently, otherwise 'like'.
+  2. Call backend endpoint: GET `${url}/api/v1/post/${post._id}/${action}` with credentials.
+  3. On success: update local like count and liked state, and update the global `posts` array with the new likes in Redux (dispatch setPosts with updated array).
+  4. Show a success toast.
+- Why update redux? So other parts of the UI (feed, profile) reflect the changed like count.
+
+commentHandler
+- Sends a new comment for the post using POST `${url}/api/v1/post/${post._id}/comment`.
+- On success: append the returned comment to local `comment` state, update the global posts via dispatch, clear the text input, and show a toast.
+
+deletePostHandler
+- Deletes the post using DELETE `${url}/api/v1/post/delete/${post._id}`.
+- On success: remove the post from global posts and show a toast.
+- Only shown to author or special admin per UI logic.
+
+bookmarkHandler
+- Calls GET `${url}/api/v1/post/${post._id}/bookmark` to toggle bookmark and shows a toast on success.
+
+--- JSX (render) ---
+<div className='my-8 w-full max-w-sm mx-auto'>
+- Container card for a single post with responsive max width.
+
+Author header
+- Shows avatar (link to profile), username, and a dialog for more options (Unfollow, Add to favorites, Delete for owner).
+
+Image
+- Main image with `onClick` that dispatches `setSelectedPost(post)` and opens the CommentDialog by setting `open` to true.
+- `className='rounded-sm my-2 w-full aspect-square object-cover'` ensures it's square and covers area.
+
+Action bar (like/comment/send/bookmark)
+- Heart icon toggles like state using likeOrDislikeHandler.
+- MessageCircle and Send icons are clickable (MessageCircle opens the CommentDialog as well).
+- Bookmark runs bookmarkHandler.
+
+Caption and likes
+- Shows like count, author username inline with caption.
+- If there are comments, shows a "View all X comments" text that opens the comment dialog.
+
+Inline comment input
+- Small input at the bottom to quickly add a comment without opening the dialog. Uses changeEventHandler and calls commentHandler when user clicks Post.
+
+Comment dialog
+- <CommentDialog open={open} setOpen={setOpen} /> is mounted so the CommentDialog can open in a modal and use the same selectedPost state.
+
+--- Edge cases & tips ---
+- The component expects `user` from Redux (auth). If not present, certain features (like like toggling) may fail — ensure authenticated flow.
+- Network errors are logged; to improve UX show toast.error messages on failure.
+- For speed, local state updates (like toggling liked) optimistically update UI before backend responds; here the code waits for server response — that is simpler and consistent.
+
+--- How to test ---
+1. Start backend and frontend.
+2. Load the feed or profile to see posts rendered.
+3. Click like/unlike and confirm the count updates and the global store is updated.
+4. Click the image to open comments dialog and add a comment.
+5. Delete a post (if you are the author) and confirm it disappears.
+
+--- Next reading ---
+- Read `docs/components/commentDialog.txt` for the dialog internals (comments, navigation, animations).
+- Then read `docs/components/comment.txt` (coming next) to understand how a single comment is rendered.

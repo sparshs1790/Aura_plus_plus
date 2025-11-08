@@ -1,0 +1,25 @@
+NotificationToast — Beginner-friendly guide
+
+File path: frontend/src/components/NotificationToast.jsx or ui/sonner wrapper
+Purpose: Small non-blocking pop-up messages that appear briefly to inform the user of success, errors, or important info (e.g., "Post uploaded", "Message sent").
+
+What the user sees
+- A small box near the top-right (or bottom) of the screen showing text for a few seconds.
+
+How it works (simple)
+1) Some code triggers a toast (e.g., after a successful API response the code calls toast.success("Saved"))
+2) The toast library shows a small floating message on screen that disappears automatically after a short time.
+
+Why toasts are useful
+- They give feedback without interrupting the user's flow (no modal dialogs required).
+
+Testing steps
+1. Perform an action that should show a toast (e.g., save a post) and confirm the message appears.
+2. Confirm important messages can be dismissed or persist if configured.
+
+Developer notes
+- The project uses `sonner` (or similar) — wrap it once at the app root using a provider.
+- Keep toast messages concise and avoid displaying technical errors directly to users.
+
+Next reading
+- `docs/components/mainLayout.txt` — to see where a toast provider can be placed in the app.

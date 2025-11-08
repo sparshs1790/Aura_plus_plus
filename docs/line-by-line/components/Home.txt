@@ -1,0 +1,73 @@
+Home.jsx — Line-by-line, token-level explanation (for absolute beginners)
+
+File: frontend/src/components/Home.jsx
+Goal: Explain each line and punctuation so someone with no coding background can follow what the file does.
+
+1) import React from 'react'
+- import: bring something from another file or package.
+- React: the main library used to build UI components.
+- from 'react': indicates we take React from the 'react' package.
+
+2) import Feed from './Feed'
+- Import the Feed component from local file Feed.jsx in the same folder.
+- './Feed' is a relative path: look in the same folder.
+
+3) import { Outlet } from 'react-router-dom'
+- Outlet is a placeholder for nested routes in the app. When a child route is active, its component will render here.
+
+4) import RightSideBar from './RightSideBar'
+- Import the right sidebar component which shows suggested users and other widgets.
+
+5) import useGetAllPost from '@/hooks/useGetAllPost'
+- Custom hook that probably fetches all posts (runs some logic when invoked).
+- '@/hooks/useGetAllPost' uses @ alias to root.
+
+6) import useGetSuggestedUsers from '@/hooks/useGetSuggestedUsers'
+- Custom hook to fetch suggested users for recommendations.
+
+7) const Home = () => {
+- Define the Home component as a function with no props.
+
+8) useGetAllPost();
+- Call the hook; when you call a hook it usually runs side effects (like fetching posts) and stores them in global state.
+- No assignment is done because the hook handles data and updates itself (likely using Redux or context).
+
+9) useGetSuggestedUsers();
+- Call hook to fetch suggested users.
+
+10) return (
+    <div className='flex'>
+- Return the JSX UI. <div className='flex'> is a container laid out with CSS flexbox.
+
+11) <div className='flex-grow'>
+- This inner div expands to use the remaining space.
+
+12) <Feed />
+- Place the Feed component (which shows posts) inside the main area.
+
+13) <Outlet />
+- Outlet is where nested route components will render (for example, a modal route or detail page).
+
+14) </div>
+- Close main flex-grow div.
+
+15) <RightSideBar />
+- Place the right sidebar component next to the main content.
+
+16) </div>
+- Close the outer flex container.
+
+17) )
+- Close return parentheses.
+
+18) }
+- Close Home function.
+
+19) export default Home
+- Make Home the default export so other files can import it with: import Home from './Home'
+
+--- Simple summary for a child ---
+- Home is like the main page of the app: it puts the feed (center) and a right-side column together.
+- It also calls two helper functions that gather data for the feed and suggestions so the page shows up-to-date content.
+
+End of Home line-by-line doc.

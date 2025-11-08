@@ -1,0 +1,76 @@
+Comment.jsx — Line-by-line, word-by-word explanation (for beginners)
+
+File: frontend/src/components/Comment.jsx
+Goal: Explain every meaningful line so a new coder (or child) can understand how the Comment component shows one comment.
+
+```jsx
+import React from 'react'
+import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar'
+import { Link } from 'react-router-dom'
+```
+- import React from 'react': Brings the React library so we can write components.
+- Avatar, AvatarFallback, AvatarImage: small building blocks used to show a user's profile picture.
+- Link: a clickable link that changes the page without reloading.
+
+```jsx
+const Comment = ({ comment }) => {
+    return (
+        <div className='my-2'>
+            <div className='flex gap-3 items-center'>
+                <Avatar>
+                    <Link to={`/profile/${comment?.author?._id}`}>
+                      <AvatarImage src={comment?.author?.profilePicture} />
+                    </Link>
+                    <Link to={`/profile/${comment?.author?._id}`}>
+                      <AvatarFallback>
+                        <img src={comment?.author?.profilePicture || '/profile.jpeg'} alt="default" className="w-full h-full object-cover" />
+                      </AvatarFallback>
+                    </Link>
+                </Avatar>
+               <Link to={`/profile/${comment?.author?._id}`}>
+                   <h1 className='font-bold text-sm'>{comment?.author?.username || 'Unknown'} <span className='font-normal pl-1'>{comment?.text}</span></h1>
+               </Link>
+            </div>
+        </div>
+    )
+}
+
+export default Comment
+```
+
+Line-by-line explanation of the JSX block (rendered HTML-like structure)
+- const Comment = ({ comment }) => { ... }
+  - Defines a small function (component) called Comment.
+  - It expects to receive one thing: an object named 'comment' that has author and text.
+
+- <div className='my-2'>
+  - The outer box that gives some vertical space (Tailwind 'my-2' means margin on top and bottom).
+
+- <div className='flex gap-3 items-center'>
+  - Inside, we use a row layout (flex) with a small gap and centered items.
+
+- <Avatar> ... </Avatar>
+  - This wraps the user's picture. Inside Avatar we have an image and a fallback.
+
+- <Link to={`/profile/${comment?.author?._id}`}>
+  - Makes the avatar clickable and sends the user to the comment author's profile page.
+  - The expression `/profile/${comment?.author?._id}` builds a URL like `/profile/123` using the author's id.
+
+- <AvatarImage src={comment?.author?.profilePicture} />
+  - Attempts to load the author's picture using the URL stored in comment.author.profilePicture.
+  - If this URL is empty or broken, the AvatarFallback below will be shown by the Avatar component.
+
+- <AvatarFallback> <img src={...} /> </AvatarFallback>
+  - As a backup, it shows a regular image element. The `|| '/profile.jpeg'` means: if author picture is missing, use `/profile.jpeg` as a default image.
+
+- <h1 className='font-bold text-sm'>{comment?.author?.username || 'Unknown'} <span className='font-normal pl-1'>{comment?.text}</span></h1>
+  - Shows the author's name in bold, and right after it, the comment text in normal font. If username is missing, it shows 'Unknown'.
+
+- export default Comment
+  - Makes this component available for other files to import and use.
+
+Small notes for a child-like explanation
+- Think of this component like a small card that shows who said something and what they said.
+- It puts a photo (if available) next to the words so you can see the person who wrote the comment.
+
+End of Comment.jsx explanation.

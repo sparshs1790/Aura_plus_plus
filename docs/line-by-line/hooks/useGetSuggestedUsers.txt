@@ -1,0 +1,46 @@
+useGetSuggestedUsers.jsx — Line-by-line, token-level explanation (for absolute beginners)
+
+File: frontend/src/hooks/useGetSuggestedUsers.jsx
+Goal: Explain the hook that fetches suggested users for the current user and how components can use it to show suggestions.
+
+--- Top imports ---
+1) import { useEffect } from 'react'
+- `useEffect` runs the fetch when the component mounts.
+
+2) import axios from 'axios'
+- HTTP client used to call the backend.
+
+3) import { useDispatch } from 'react-redux'
+- `useDispatch` to update Redux with suggested users.
+
+4) import { setSuggestedUsers } from '@/redux/rtnSlice'
+- Action creator that stores suggested users in Redux (rtnSlice in this app).
+
+--- Hook ---
+5) const useGetSuggestedUsers = () => {
+- Define the hook.
+
+6) const dispatch = useDispatch()
+- Get the `dispatch` function.
+
+7) const url = import.meta.env.VITE_URL || 'http://localhost:5000'
+- Backend base URL.
+
+8) useEffect(() => {
+    const fetchSuggested = async () => {
+        try {
+            const res = await axios.get(`${url}/api/v1/user/suggested`, { withCredentials: true })
+            if (res.data.success) dispatch(setSuggestedUsers(res.data.users))
+        } catch (error) { console.error(error) }
+    }
+    fetchSuggested()
+}, [dispatch])
+- On mount, call the suggested users endpoint and dispatch results into Redux.
+
+9) export default useGetSuggestedUsers
+- Export the hook so components like `SuggestedBox` can call it or rely on preloaded state.
+
+--- Beginner summary ---
+- `useGetSuggestedUsers` loads a list of recommended accounts and stores them in Redux. Components can use the stored suggested users to render suggestions without duplicating fetch logic.
+
+End of useGetSuggestedUsers doc.

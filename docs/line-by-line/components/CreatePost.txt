@@ -1,0 +1,304 @@
+CreatePost.jsx — Line-by-line, token-level explanation (for absolute beginners)
+
+File: frontend/src/components/CreatePost.jsx
+Goal: Explain each line and every meaningful symbol (braces, commas, parentheses, operators) in simple language so even a child can follow.
+
+Note about notation used below:
+- I will show a code line and then explain it phrase-by-phrase. When I explain punctuation like commas, braces, parentheses, quotes, or equal signs I will write what they do in plain words.
+
+--- File start ---
+
+1) import React, { useRef, useState } from 'react'
+- import: a keyword that means "bring these things from another file so we can use them here".
+- React: the main library object for building components. We name it "React" here.
+- , (comma): separates items in a list. Here it separates React from the next thing.
+- { useRef, useState }: curly braces mean "take these specific pieces from the library". Inside we list the hooks useRef and useState.
+  - useRef: a helper that gives the component a small place to store a value that doesn't cause re-render (commonly used for file inputs or DOM refs).
+  - useState: a helper that gives the component local memory (state) so it can remember values across renders.
+- from 'react': the string 'react' tells import where to get these items from — the React package.
+- No semicolon at end: JavaScript allows it, but it's optional; this file sometimes omits semicolons.
+
+2) import { Dialog, DialogContent, DialogHeader } from './ui/dialog'
+- import { ... } from './ui/dialog': bring three named exports from the file at path './ui/dialog'.
+- './ui/dialog' is a relative path: './' means the same folder as the current file, then inside the ui folder find dialog.
+- Dialog, DialogContent, DialogHeader are small UI building blocks used to make a popup dialog.
+- Commas between names separate the list of items we are importing.
+
+3) import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
+- Same idea: import three things for showing user avatars.
+- The trailing semicolon (;) is a statement end marker. It's optional in JS but used here.
+
+4) import { Textarea } from './ui/textarea';
+- Import a Textarea UI component used for entering multi-line text (caption).
+
+5) import { Button } from './ui/button';
+- Import a styled Button component.
+
+6) import { readFileAsDataURL } from '@/lib/utils';
+- Import a helper function readFileAsDataURL from a utility file.
+- '@/lib/utils' uses an alias '@' mapped to the project root (in Vite). It helps avoid long relative paths.
+
+7) import { Loader2 } from 'lucide-react';
+- Import a small loading spinner icon (Loader2) from the lucide-react icon library.
+
+8) import { toast } from 'sonner';
+- Import toast: a helper to show small notifications like "Uploaded" or "Error".
+
+9) import axios from 'axios';
+- Import the axios HTTP library to send requests to the backend server.
+
+10) import { useDispatch, useSelector } from 'react-redux';
+- useDispatch: function to send actions to global app store (Redux).
+- useSelector: function to read data from Redux (e.g., current user, posts).
+
+11) import { setPosts } from '@/redux/postSlice';
+- Import the setPosts action so we can update the global posts list after creating a new post.
+
+12) const CreatePost = ({ open, setOpen }) => {
+- const: declares a variable that won't be reassigned.
+- CreatePost: the name of our component — a function that returns UI.
+- = ({ open, setOpen }) => { ... } : an arrow function that receives an object as its parameter.
+  - ({ open, setOpen }): destructures the function argument so we directly receive two props/values named open and setOpen.
+  - open: usually a boolean that tells if the dialog is open.
+  - setOpen: a function provided by the parent to change the open state.
+- => : an arrow that introduces the function body.
+- { : start of function body.
+
+13) const imageRef = useRef();
+- Declare imageRef using useRef() — this will point to the hidden file input element so we can programmatically click it.
+- Parentheses () call the useRef function.
+
+14) const [file, setFile] = useState("");
+- This creates a state pair: file is the current value, setFile is the function to change it.
+- useState("") means file starts as an empty string "".
+- [ ... ] is array destructuring: it takes the two elements returned by useState and assigns them to file and setFile.
+
+15) const [caption, setCaption] = useState("");
+- Local state for the caption text. Starts empty.
+
+16) const [imagePreview, setImagePreview] = useState("");
+- Local state to store a data URL (preview) of the selected image so we can show it before uploading.
+
+17) const [loading, setLoading] = useState(false);
+- loading is a boolean state that indicates a background upload is in progress.
+- It starts at false (not loading).
+
+18) const {user} = useSelector(store=>store.auth);
+- useSelector reads from Redux store; the arrow function store => store.auth returns the auth slice.
+- { user } destructures the user object from the auth slice.
+- => arrow: short function syntax.
+
+19) const {posts} = useSelector(store=>store.post);
+- Reads the global posts array so the component can add newly created posts to it.
+
+20) const dispatch = useDispatch();
+- dispatch is the function we use to send actions to Redux.
+
+21) const url = import.meta.env.VITE_URL || 'http://localhost:5000';
+- import.meta.env.VITE_URL reads a Vite environment variable for the backend URL.
+- || 'http://localhost:5000' means: if the env var is empty/falsey, use the fallback local URL.
+- || is the logical OR operator.
+
+22) const fileChangeHandler = async (e) => {
+- Declares an asynchronous function that runs when the hidden file input changes (user selects a file).
+- async means the function can use await inside to wait for promises.
+- (e) is the event object given by the browser.
+- => starts the function body.
+
+23) const file = e.target.files?.[0];
+- e.target.files is the list of selected files from the input element.
+- ?. is optional chaining: it safely accesses files only if target exists.
+- [0] picks the first selected file.
+- const file shadows (reuses) the variable name inside this function (local variable).
+
+24) if (file) {
+- if checks whether file exists (not null/undefined).
+- { opens the if-block.
+
+25) setFile(file);
+- Calls setFile to store the selected file object in component state.
+
+26) const dataUrl = await readFileAsDataURL(file);
+- Calls helper readFileAsDataURL(file) which returns a promise that resolves to a data URL string like 'data:image/png;base64,...'.
+- await pauses function execution until the promise resolves.
+- const dataUrl stores that returned string.
+
+27) setImagePreview(dataUrl);
+- Save the preview data URL to state so the UI can render the preview image.
+
+28) }
+- Closes the if block.
+
+29) }
+- Closes the function fileChangeHandler.
+
+30) const createPostHandler = async (e) => {
+- Another async function invoked when the user clicks the Post button.
+- e is the event; not used here but commonly included.
+
+31) const formData = new FormData();
+- Create a FormData object (a special structure used to send files in a multipart/form-data request).
+- new means "create a new instance".
+
+32) formData.append("caption", caption);
+- Append a simple text field named "caption" with its value from state.
+- Double quotes "" wrap the name string.
+
+33) if (imagePreview) formData.append("image", file);
+- If imagePreview has a value (the user selected an image), append the file to formData under key "image".
+- Single-line if: no braces — works for one statement.
+
+34) try {
+- Start of a try block: we will attempt network calls and catch errors if they happen.
+
+35) setLoading(true);
+- Set loading state so UI can show a spinner.
+
+36) const res = await axios.post(`${url}/api/v1/post/addpost`, formData, {
+- Send a POST request to the server to create the post.
+- axios.post(url, data, options) — here options is the third argument.
+- `${url}/api/v1/post/addpost` uses template literal backticks: it inserts the url variable into the string.
+
+37) headers: { 'Content-Type': 'multipart/form-data' },
+- Inside the options object: headers specify the content type. For file uploads, use multipart/form-data.
+- Comma separates object properties.
+
+38) withCredentials: true
+- This option tells the browser to include cookies with the request (important for auth sessions).
+
+39) });
+- Close options object and axios.post call.
+
+40) if (res.data.success) {
+- If server returns success flag true, proceed.
+
+41) dispatch(setPosts([res.data.post, ...posts]));
+- Build a new array with the newly created post at the front: [res.data.post, ...posts].
+- ...posts is the spread operator: it expands the existing posts array into individual items.
+- dispatch(setPosts(...)) updates the global posts list.
+
+42) toast.success(res.data.message);
+- Show a small success notification with message from server.
+
+43) setOpen(false);
+- Close the CreatePost dialog by calling the parent-provided setOpen function with false.
+
+44) // Reset form state
+- A comment line: double slash // means the rest of the line is ignored by JavaScript — it's for humans.
+
+45) setFile("");
+- Clear the file state back to empty string.
+
+46) setCaption("");
+- Clear the caption.
+
+47) setImagePreview("");
+- Clear the preview.
+
+48) }
+- Close the if block.
+
+49) } catch (error) {
+- If the try block threw an error (network failed), execution jumps here.
+
+50) toast.error(error.response.data.message);
+- Show an error toast using the message from the server error (if available).
+
+51) } finally {
+- finally block runs after try or catch, always.
+
+52) setLoading(false);
+- Stop the loading spinner.
+
+53) }
+- Close finally block.
+
+54) }
+- Close createPostHandler function.
+
+55) return (
+- Start of return: the component's UI (JSX) to render on screen.
+
+56) <Dialog open={open}>
+- Dialog component with a prop open={open} — this passes the boolean open into Dialog so it knows if it should be visible.
+- Curly braces {} mean "evaluate the JavaScript expression inside".
+
+57) <DialogContent onInteractOutside={() => setOpen(false)}>
+- DialogContent has a prop onInteractOutside which is given a function: () => setOpen(false)
+  - () => setOpen(false) is an arrow function with no arguments that calls setOpen(false) — this closes dialog when user clicks outside.
+
+58) <DialogHeader className='text-center font-semibold'>Create New Post</DialogHeader>
+- DialogHeader receives a className string of CSS classes.
+- The text between the tags is the header shown to the user: "Create New Post".
+
+59) <div className='flex gap-3 items-center'>
+- A container with Tailwind classes to layout avatar and username.
+
+60) <Avatar>
+- Avatar wrapper. Inside we place the AvatarImage and AvatarFallback.
+
+61) <AvatarImage src={user?.profilePicture} alt="img" />
+- AvatarImage renders the user's profile picture. src receives a JavaScript expression user?.profilePicture.
+- alt is the alternative text for accessibility.
+
+62) <AvatarFallback>  <img src={user?.profilePicture || '/profile.jpeg'} alt="default" className="w-full h-full object-cover" /></AvatarFallback>
+- AvatarFallback is shown when the image cannot load.
+- Inside it we place a regular <img> element whose src is either the user's picture or a default '/profile.jpeg' using the || operator.
+
+63) </Avatar>
+- Close Avatar tag.
+
+64) <div>
+65) <h1 className='font-semibold text-xs'>{user?.username}</h1>
+- Show the current user's username in a heading.
+
+66) <span className='text-gray-600 text-xs'>Bio here...</span>
+- Placeholder bio text.
+
+67) </div>
+68) </div>
+- Close the avatar/name row.
+
+69) <Textarea value={caption} onChange={(e) => setCaption(e.target.value)} className="focus-visible:ring-transparent border-none" placeholder="Write a caption..." />
+- Textarea with controlled value: value={caption} means the value shown equals the caption state.
+- onChange receives a function (e) => setCaption(e.target.value) which updates caption when user types.
+- Placeholder shows faint text when input is empty.
+
+70) { imagePreview && ( <div> ... </div> ) }
+- Curly braces { } allow JavaScript expression in JSX.
+- imagePreview && ( ... ) is a common pattern: if imagePreview is truthy (non-empty), then render the stuff inside parentheses. The && acts like an if.
+
+71) <input ref={imageRef} type='file' className='hidden' onChange={fileChangeHandler} />
+- A hidden file input element we will click programmatically.
+- ref={imageRef} connects this element to the imageRef so we can call imageRef.current.click().
+- type='file' means it's a file picker.
+- className='hidden' hides it visually.
+- onChange={fileChangeHandler} means when a file is selected, our handler runs.
+
+72) <Button onClick={() => imageRef.current.click()} className='w-fit mx-auto bg-[#0095F6] hover:bg-[#258bcf] '>Select from computer</Button>
+- A visible button that, when clicked, runs the function () => imageRef.current.click() — this triggers the hidden file input's click.
+- imageRef.current points to the DOM input element.
+
+73) { imagePreview && ( loading ? ( <Button> <Loader2 ... /> Please wait </Button> ) : ( <Button onClick={createPostHandler} type="submit" className="w-full">Post</Button> ) ) }
+- If imagePreview exists, show either a loading button or a Post button depending on loading state.
+- Ternary operator: condition ? valueIfTrue : valueIfFalse. Here loading ? (loading UI) : (Post button).
+- Loader2 component is an icon with spin animation; placed inside button with text "Please wait".
+
+74) </DialogContent>
+75) </Dialog>
+- Close JSX tags for dialog.
+
+76) )
+- Close the return parentheses.
+
+77) }
+- Close the CreatePost function body.
+
+78) export default CreatePost
+- Make this component the default export of this file so other files can import it with: import CreatePost from './CreatePost'
+
+--- Small summary for a child ---
+- This file makes a small popup where you can choose a picture from your computer and write a caption, then upload it to the app.
+- It stores the chosen file, shows a preview image, and sends the file to the server when you click Post.
+
+End of CreatePost line-by-line doc.

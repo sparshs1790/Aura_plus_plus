@@ -1,0 +1,321 @@
+Post.jsx — Line-by-line, word-by-word explanation (for beginners)
+
+File: frontend/src/components/Post.jsx
+Goal: Explain every meaningful line and identifier in simple words so a complete beginner (even a child) can understand what the file does.
+
+--- Top of file: imports ---
+import React, { useState } from 'react'
+- "import" means: bring something from another file so we can use it here.
+- "React" is the main library that lets us build UI pieces called components.
+- "useState" is a small tool (a hook) from React that lets the component remember values (like text typed by the user).
+
+import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar'
+- We bring three small pieces used to show a user's picture:
+  - Avatar: the wrapper around the picture
+  - AvatarImage: the actual image element
+  - AvatarFallback: a fallback display if the image is missing
+- './ui/avatar' is a file next to this one that defines these building blocks.
+
+import { Dialog, DialogContent, DialogTrigger } from './ui/dialog'
+- Dialog: a popup window component.
+- DialogTrigger: what we click to open the popup.
+- DialogContent: what is shown inside the popup.
+
+import { Bookmark, MessageCircle, MoreHorizontal, Send } from 'lucide-react'
+- These are small icon drawings (bookmark, message bubble, three dots, send) we use for buttons.
+- 'lucide-react' is an icon library.
+
+import { Button } from './ui/button'
+- A reusable button component with project's visual style.
+
+import { FaHeart, FaRegHeart } from "react-icons/fa";
+- Two heart icons from another icon library: full heart (liked) and empty heart (not liked).
+
+import CommentDialog from './CommentDialog'
+- The comment popup component that shows and adds comments.
+
+import { useDispatch, useSelector } from 'react-redux'
+- These are tools to talk to the app's global memory (Redux):
+  - useSelector reads data from the global store.
+  - useDispatch sends commands to change the global store.
+
+import axios from 'axios'
+- axios is a small helper to send HTTP requests to the backend (server).
+
+import { toast } from 'sonner'
+- A tiny notification helper to show short messages to the user (e.g., "Saved").
+
+import { setPosts, setSelectedPost } from '@/redux/postSlice'
+- These are commands (actions) we can send to Redux to update posts or set the current selected post.
+
+import { Badge } from './ui/badge'
+- A little label UI, like a small colored pill that can say "Author".
+
+import { Link } from 'react-router-dom';
+- Link is a component that makes text or images clickable and changes the page without reloading.
+
+--- Component definition ---
+const Post = ({ post }) => {
+- This defines a component named Post.
+- "const Post =" means we are creating a function and giving it the name Post.
+- "({ post })" means this function expects to receive a single object named "post" from the parent. That object has the post data (author, image, likes, comments, etc.).
+
+    const [text, setText] = useState("");
+- We create a local memory value called 'text' and a function 'setText' to change it.
+- useState("") sets the initial text to an empty string "".
+- This is used for the small inline comment input.
+
+    const [open, setOpen] = useState(false);
+- 'open' remembers whether the CommentDialog popup is open (true) or closed (false). Initially it's closed (false).
+
+    const { user } = useSelector(store => store.auth);
+- Reads the 'user' object from the app's global state (auth slice). This tells us who is currently logged in.
+
+    const { posts } = useSelector(store => store.post);
+- Reads the global list of posts from Redux so we can update it when something changes.
+
+    const [liked, setLiked] = useState(post.likes.includes(user?._id) || false);
+- 'liked' is a local boolean (true/false) telling us whether the current user already liked this post.
+- 'post.likes' is an array of user ids who liked the post. We check if the current user's id is included.
+- user?._id uses optional chaining: if user is undefined, it won't throw an error.
+
+    const [postLike, setPostLike] = useState(post.likes.length);
+- 'postLike' stores the number of likes (a number). We start with how many likes the post already has.
+
+    const [comment, setComment] = useState(post.comments);
+- 'comment' holds the array of comments for this post. We initialize it from post.comments.
+
+    const dispatch = useDispatch();
+- 'dispatch' is the function we use to send actions to Redux.
+
+    const url = import.meta.env.VITE_URL || 'http://localhost:5000';
+- 'url' is the base address of the backend server. It tries to read it from environment variables (Vite config). If not found, it uses 'http://localhost:5000'.
+
+    const SPECIAL_USER_ID = import.meta.env.VITE_SPECIAL_USER_ID || '68d37e416d154171a2ebc9e7';
+- A special admin-like user id read from environment. Used to allow that user to delete posts.
+
+--- Small helper: changeEventHandler ---
+    const changeEventHandler = (e) => {
+        const inputText = e.target.value;
+        if (inputText.trim()) {
+            setText(inputText);
+        } else {
+            setText("");
+        }
+    }
+- This function runs when the small comment input changes.
+- 'e' is the event object: e.target.value gives the input's current text.
+- .trim() removes spaces at the ends. If there's any non-space text, we keep it. Otherwise we set text to empty string.
+
+--- Like / Dislike handler ---
+    const likeOrDislikeHandler = async () => {
+        try {
+            const action = liked ? 'dislike' : 'like';
+            const res = await axios.get(`${url}/api/v1/post/${post._id}/${action}`, { withCredentials: true });
+            console.log(res.data);
+            if (res.data.success) {
+                const updatedLikes = liked ? postLike - 1 : postLike + 1;
+                setPostLike(updatedLikes);
+                setLiked(!liked);
+
+                // apne post ko update krunga
+                const updatedPostData = posts.map(p =>
+                    p._id === post._id ? {
+                        ...p,
+                        likes: liked ? p.likes.filter(id => id !== user._id) : [...p.likes, user._id]
+                    } : p
+                );
+                dispatch(setPosts(updatedPostData));
+                toast.success(res.data.message);
+            }
+        } catch (error) {
+            console.log(error);
+        }
+    }
+- This function toggles like/unlike for the post.
+- 'async' means it does network calls and waits for the server.
+- It decides action = 'dislike' if currently liked, otherwise 'like'.
+- axios.get sends a GET request to the server endpoint for like/dislike.
+- If server says success, we update local like count and liked state.
+- Then we build 'updatedPostData' by going through global posts and replacing the changed post with the new likes array.
+- dispatch(setPosts(updatedPostData)) updates global posts in Redux so other parts of app see the change.
+- toast.success shows a little success message on screen.
+
+--- Add comment handler ---
+    const commentHandler = async () => {
+
+        try {
+            const res = await axios.post(`${url}/api/v1/post/${post._id}/comment`, { text }, {
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                withCredentials: true
+            });
+            console.log(res.data);
+            if (res.data.success) {
+                const updatedCommentData = [...comment, res.data.comment];
+                setComment(updatedCommentData);
+
+                const updatedPostData = posts.map(p =>
+                    p._id === post._id ? { ...p, comments: updatedCommentData } : p
+                );
+
+                dispatch(setPosts(updatedPostData));
+                toast.success(res.data.message);
+                setText("");
+            }
+        } catch (error) {
+            console.log(error);
+        }
+    }
+- Sends the new comment to the server using POST with a JSON body { text }.
+- On success, appends the returned comment to local comment array and updates global posts similarly to the like handler.
+- Clears the text input by setText("").
+
+--- Delete post handler ---
+    const deletePostHandler = async () => {
+        try {
+            const res = await axios.delete(`${url}/api/v1/post/delete/${post?._id}`, { withCredentials: true })
+            if (res.data.success) {
+                const updatedPostData = posts.filter((postItem) => postItem?._id !== post?._id);
+                dispatch(setPosts(updatedPostData));
+                toast.success(res.data.message);
+            }
+        } catch (error) {
+            console.log(error);
+            toast.error(error.response.data.messsage);
+        }
+    }
+- Sends a DELETE request to the server to remove this post.
+- On success, removes the post from the global posts list and shows a toast.
+
+--- Bookmark handler ---
+    const bookmarkHandler = async () => {
+        try {
+            const res = await axios.get(`${url}/api/v1/post/${post?._id}/bookmark`, {withCredentials:true});
+            if(res.data.success){
+                toast.success(res.data.message);
+            }
+        } catch (error) {
+            console.log(error);
+        }
+    }
+- Toggles bookmark on server and shows a message.
+
+--- Render (what shows on screen) ---
+    return (
+        <div className='my-8 w-full max-w-sm mx-auto'>
+- The top-level box for this post. The long string are CSS classes (Tailwind) controlling spacing and width.
+
+            <div className='flex items-center justify-between'>
+                <div className='flex items-center gap-2'>
+                    <Avatar>
+                      <Link to = {`/profile/${post?.author?._id}`}><AvatarImage src={post.author?.profilePicture} alt="post_image" /></Link>
+                        <Link to = {`/profile/${post?.author?._id}`}><AvatarFallback>  <img src={post?.author?.profilePicture || '/profile.jpeg'} alt="default" className="w-full h-full object-cover" /></AvatarFallback></Link>
+                    </Avatar>
+                    <div className='flex items-center gap-3'>
+                         <Link to = {`/profile/${post?.author?._id}`}><h1>{post.author?.username}</h1></Link>
+                       {user?._id === post.author._id &&  <Badge variant="secondary">Author</Badge>}
+                    </div>
+                </div>
+- This block shows the author's avatar and name.
+- Links wrap avatar and name so clicking goes to the author's profile page.
+- If the current user is the author, a small Badge with the word 'Author' is shown.
+
+                <Dialog>
+                    <DialogTrigger asChild>
+                        <MoreHorizontal className='cursor-pointer' />
+                    </DialogTrigger>
+                    <DialogContent className="flex flex-col items-center text-sm text-center">
+                        {
+                            post?.author?._id !== user?._id && (
+                                <Button variant='ghost' className="cursor-pointer w-fit text-[#ED4956] font-bold">Unfollow</Button>
+                            )
+                        }
+                        <Button variant='ghost' className="cursor-pointer w-fit">Add to favorites</Button>
+                        {
+                            (user && (user?._id === post?.author?._id || user?._id === SPECIAL_USER_ID)) && (
+                                <Button onClick={deletePostHandler} variant='ghost' className="cursor-pointer w-fit">Delete</Button>
+                            )
+                        }
+                    </DialogContent>
+                </Dialog>
+- This dialog shows options (Unfollow, Add to favorites, Delete) when clicking the three-dot icon.
+- The Delete option appears only if the viewer is the author or the special admin user.
+
+            </div>
+            <img
+                className='rounded-sm my-2 w-full aspect-square object-cover'
+                src={post.image}
+                alt="post_img"
+                onClick={() => {
+                    dispatch(setSelectedPost(post));
+                    setOpen(true);
+                }}
+            />
+- The post image. Clicking it opens the comment dialog for this post by setting selectedPost in Redux and opening local open state.
+
+            <div className='flex items-center justify-between my-2'>
+                <div className='flex items-center gap-3'>
+                    {
+                        liked ? <FaHeart onClick={likeOrDislikeHandler} size={'24'} className='cursor-pointer text-red-600' /> : <FaRegHeart onClick={likeOrDislikeHandler} size={'22px'} className='cursor-pointer hover:text-gray-600' />
+                    }
+
+                    <MessageCircle onClick={() => {
+                        dispatch(setSelectedPost(post));
+                        setOpen(true);
+                    }} className='cursor-pointer hover:text-gray-600' />
+                    <Send className='cursor-pointer hover:text-gray-600' />
+                </div>
+                <Bookmark onClick={bookmarkHandler} className='cursor-pointer hover:text-gray-600' />
+            </div>
+- Action row with like, comment, send, and bookmark icons.
+- The like icon shown depends on whether 'liked' is true.
+- Clicking message circle also opens the comment dialog.
+
+            <span className='font-medium block mb-2'>{postLike} likes</span>
+            <p>
+                <span className='font-medium mr-2'>{post.author?.username}</span>
+                {post.caption}
+            </p>
+- Shows the total likes and the post caption with author username in bold.
+
+            {
+                comment.length > 0 && (
+                    <span onClick={() => {
+                        dispatch(setSelectedPost(post));
+                        setOpen(true);
+                    }} className='cursor-pointer text-sm text-gray-400'>View all {comment.length} comments</span>
+                )
+            }
+- If there are comments, show a small link to view all comments which opens the dialog.
+
+              <CommentDialog open={open} setOpen={setOpen} />
+- Renders the CommentDialog component. We pass 'open' and 'setOpen' so it can show/hide.
+
+            <div className='flex items-center justify-between'>
+                <input
+                    type="text"
+                    placeholder='Add a comment...'
+                    value={text}
+                    onChange={changeEventHandler}
+                    className='outline-none text-sm w-full'
+                />
+                {
+                    text && <span onClick={commentHandler} className='text-[#3BADF8] cursor-pointer'>Post</span>
+                }
+
+            </div>
+- Inline comment input at the bottom of post card. When there is text, a Post button appears to send the comment.
+
+        </div>
+    )
+}
+
+export default Post
+- This makes the Post component available to other files that want to use it.
+
+--- End of file ---
+
+Notes for next steps
+- If you'd like, I can now create similar line-by-line files for `Comment.jsx`, `Posts.jsx`, and `Feed.jsx` (I will do those next in this batch). Reply "continue" or "make changes" if you want any adjustment to style or level of detail.

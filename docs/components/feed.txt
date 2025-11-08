@@ -1,0 +1,36 @@
+Feed.jsx — Beginner-friendly explanation
+
+File path: frontend/src/components/Feed.jsx
+Purpose: Displays the main timeline of posts — fetches posts from the backend, stores them in Redux or local state, and renders `Posts` component. Handles refresh and pagination.
+
+High-level responsibilities
+- Fetch all posts (or posts of followed users) from the API when the component mounts.
+- Provide refresh control to re-fetch posts.
+- Store the posts in Redux so other components can access them (like Post and CommentDialog).
+
+--- Imports commonly used ---
+import React, { useEffect } from 'react'
+import Posts from './Posts'
+import axios from 'axios'
+import { useDispatch, useSelector } from 'react-redux'
+import { setPosts } from '@/redux/postSlice'
+
+--- Component behavior ---
+1. On mount: useEffect(() => { fetchPosts() }, [])
+2. fetchPosts: GET request to `/api/v1/post/all` or similar endpoint. On success, dispatch(setPosts(data.posts)).
+3. Render: <Posts posts={posts} /> where `posts` comes from Redux via useSelector.
+
+--- Optimizations ---
+- Debounce polling or add a websocket (Socket.io) for real-time updates.
+- Add pagination or infinite scroll: keep page number in state and fetch more on scroll.
+
+--- Error handling ---
+- If fetch fails, show a friendly message and optionally a Retry button.
+
+--- Testing checklist ---
+- Mock API to return a known list; ensure Feed fetches and dispatches actions to populate Redux.
+- Ensure Posts receives updated posts when Redux state changes.
+
+--- UX notes ---
+- Show a spinner or skeleton while posts are loading.
+- Add pull-to-refresh on mobile if required.

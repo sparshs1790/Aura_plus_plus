@@ -1,0 +1,52 @@
+MainLayout.jsx — Line-by-line, token-level explanation (for absolute beginners)
+
+File: frontend/src/components/MainLayout.jsx
+Goal: Explain the main app layout that wraps pages with the left and right sidebars and an outlet for routed content.
+
+--- Top imports ---
+1) import React from 'react'
+- Import React so JSX and components work.
+
+2) import { Outlet } from 'react-router-dom'
+- Outlet is a placeholder where nested routes render their components.
+
+3) import LeftSideBar from './LeftSideBar'
+- Left navigation component.
+
+4) import RightSideBar from './RightSideBar'
+- Right-side widgets component.
+
+--- Component ---
+5) const MainLayout = () => {
+- Define MainLayout functional component.
+
+6) return (
+    <div className='min-h-screen bg-gray-50'>
+- Outer wrapper that sets page background and minimum height to full screen.
+
+7) <div className='max-w-6xl mx-auto grid grid-cols-12 gap-4'>
+- A centered grid container with 12 columns. The layout places left/right bars and main content within these columns.
+
+8) <div className='col-span-2'><LeftSideBar /></div>
+- Left sidebar occupies 2 of 12 columns.
+
+9) <main className='col-span-8'><Outlet /></main>
+- Main area occupies 8 columns and renders routed content via <Outlet />.
+
+10) <div className='col-span-2'><RightSideBar /></div>
+- Right sidebar occupies the remaining 2 columns.
+
+11) </div>
+12) </div>
+- Close wrapper elements.
+
+13) }
+- Close component function.
+
+14) export default MainLayout
+- Export MainLayout so routing can use it as a layout wrapper.
+
+--- Beginner summary ---
+- MainLayout composes the page from three columns: left nav, center content, and right widgets. The center content changes based on the active route through the <Outlet>.
+
+End of MainLayout line-by-line doc.

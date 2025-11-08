@@ -1,0 +1,27 @@
+Explore.jsx — Beginner-friendly walkthrough
+
+File path: frontend/src/components/Explore.jsx
+Purpose: The Explore page helps users discover public content outside their normal feed. It typically shows trending posts, search results, or a grid of recommended media.
+
+What a non-coder sees
+- A large grid of images or posts, often with filters or a search bar.
+
+How it works step-by-step
+1) The component calls the backend to fetch trending or recommended posts.
+2) The posts are displayed in a grid. Clicking a post opens the Comment dialog.
+3) There may be sorting or filtering controls (popular, recent).
+
+Why explore is separate from feed
+- Feed shows posts from people you follow; Explore shows public content to help you find new people and topics.
+
+Testing steps
+1. Open Explore and confirm it shows posts.
+2. Use filters or sorting, if available, and confirm the grid updates.
+3. Click a post and ensure comment dialog opens.
+
+Developer notes
+- Explore often uses server-side ranking and may include pagination or infinite scroll.
+- For performance, lazy-load images and consider using a CDN.
+
+Next reading
+- `docs/components/searchBox.txt` for how search inputs tie into explore and other pages.

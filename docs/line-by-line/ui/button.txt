@@ -1,0 +1,24 @@
+button.jsx — Line-by-line, token-level explanation (for absolute beginners)
+
+File: frontend/src/components/ui/button.jsx
+Goal: Explain a small Button primitive used across the app for consistent styling and behavior.
+
+--- Top imports ---
+1) import React from 'react'
+- Import React so the component can return JSX.
+
+--- Component ---
+2) export const Button = ({ children, onClick, type = 'button', className = '', ...props }) => (
+    <button type={type} onClick={onClick} className={`inline-flex items-center px-3 py-1 rounded-md bg-blue-500 text-white hover:bg-blue-600 ${className}`} {...props}>
+        {children}
+    </button>
+)
+- `Button` is a reusable element for clickable actions.
+- `type`: defaults to 'button' but can be 'submit' in forms.
+- `onClick`: click handler passed from parent.
+- `className` and `...props` allow customization (for accessibility attributes, aria labels, etc.).
+
+--- Beginner summary ---
+- Use `Button` to get consistent look-and-feel. It wraps a native <button> and forwards props and children.
+
+End of button doc.

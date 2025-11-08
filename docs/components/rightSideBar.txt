@@ -1,0 +1,27 @@
+RightSideBar.jsx — Beginner-friendly guide
+
+File path: frontend/src/components/RightSideBar.jsx
+Purpose: Shows secondary information and suggestions: suggested users to follow, trending topics, and small widgets that enrich the main feed.
+
+What a non-coder sees
+- A column on the right with "Suggested" people, maybe a small list of trending hashtags, and occasional small ads or tips.
+
+Step-by-step explanation
+1) The component receives or fetches lightweight data (suggested users, trending items).
+2) Renders small cards or lists with each item and a Follow button for suggested users.
+3) Clicking a suggested user takes you to their profile.
+
+Why separate right-side content
+- Keeps the main feed focused while still showing helpful extras. It's intentionally less interactive and used for discovery.
+
+Testing steps
+1. Ensure suggested users display names and avatars.
+2. Click a suggested user and confirm the profile opens.
+3. Click Follow and see the UI update to show the follow happened.
+
+Developer notes
+- Keep server calls minimal and cache suggestions if possible.
+- Small performance benefit: right-side widgets can load lazily so the main feed loads faster.
+
+Next reading
+- `docs/components/suggestedBox.txt` — more details about the suggestion component.

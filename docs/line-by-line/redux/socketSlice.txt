@@ -1,0 +1,36 @@
+socketSlice.js — Line-by-line, token-level explanation (for absolute beginners)
+
+File: frontend/src/redux/socketSlice.js
+Goal: Explain how socket connection state is represented so components can access the socket instance via Redux.
+
+--- Top imports ---
+1) import { createSlice } from '@reduxjs/toolkit'
+- `createSlice` is used to create a Redux slice which bundles reducer logic and action creators.
+
+--- Initial state ---
+2) const initialState = { socket: null }
+- The slice holds a `socket` property which will store the socket client instance (for example, a socket.io client).
+
+--- Slice definition ---
+3) const socketSlice = createSlice({
+    name: 'socket',
+    initialState,
+    reducers: {
+        setSocket(state, action) { state.socket = action.payload },
+        clearSocket(state) { state.socket = null }
+    }
+})
+- Reducers provided:
+  - `setSocket`: store a socket instance on the state so other parts of the app can read/use it.
+  - `clearSocket`: remove the socket instance (useful on logout or cleanup).
+
+4) export const { setSocket, clearSocket } = socketSlice.actions
+- Export the generated action creators for other modules to dispatch.
+
+5) export default socketSlice.reducer
+- Export the reducer so it can be included in the Redux store configuration.
+
+--- Beginner summary ---
+- `socketSlice.js` centralizes the socket instance in Redux. Components or hooks can dispatch `setSocket(socket)` after creating a socket client, and read `state.socket.socket` (or use a selector) to access it.
+
+End of socketSlice doc.

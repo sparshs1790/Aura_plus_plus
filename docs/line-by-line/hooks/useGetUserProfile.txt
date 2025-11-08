@@ -1,0 +1,46 @@
+useGetUserProfile.jsx — Line-by-line, token-level explanation (for absolute beginners)
+
+File: frontend/src/hooks/useGetUserProfile.jsx
+Goal: Explain how this hook loads the authenticated user's profile and optionally keeps it in Redux or local state.
+
+--- Top imports ---
+1) import { useEffect } from 'react'
+- `useEffect` runs side-effects like network requests when the component mounts or dependencies change.
+
+2) import axios from 'axios'
+- HTTP client used to request the user's profile from the backend.
+
+3) import { useDispatch } from 'react-redux'
+- `useDispatch` allows the hook to update Redux state with the fetched profile.
+
+4) import { setAuthUser } from '@/redux/authSlice'
+- `setAuthUser` is an action to store the authenticated user's data in the auth slice.
+
+--- Hook ---
+5) const useGetUserProfile = () => {
+- Define the hook function. Components can call it to ensure the auth user is loaded.
+
+6) const dispatch = useDispatch()
+- Get the `dispatch` function for sending actions.
+
+7) const url = import.meta.env.VITE_URL || 'http://localhost:5000'
+- Backend base URL with fallback to localhost for development.
+
+8) useEffect(() => {
+    const fetchProfile = async () => {
+        try {
+            const res = await axios.get(`${url}/api/v1/user/me`, { withCredentials: true })
+            if (res.data.success) dispatch(setAuthUser(res.data.user))
+        } catch (error) { console.error(error) }
+    }
+    fetchProfile()
+}, [dispatch])
+- On mount, call the `/user/me` endpoint to get current user data and dispatch it to the auth slice. The `[dispatch]` dependency keeps the effect stable.
+
+9) export default useGetUserProfile
+- Export the hook so pages like `MainLayout` or `App` can call it to preload the current user.
+
+--- Beginner summary ---
+- `useGetUserProfile` fetches the currently logged-in user's data and stores it in Redux. It's a small reusable hook to centralize the auth-profile fetch logic.
+
+End of useGetUserProfile doc.

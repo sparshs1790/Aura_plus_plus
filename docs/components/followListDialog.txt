@@ -1,0 +1,27 @@
+FollowListDialog — Beginner-friendly explanation
+
+File path: frontend/src/components/FollowListDialog.jsx
+Purpose: A modal dialog that shows a list of users who follow the current user or who the current user is following. Users can click on entries to open profiles, and follow/unfollow from within the dialog.
+
+What the user sees
+- A pop-up dialog with a scrollable list of users including avatar, name, and a follow/unfollow button next to each name.
+
+How it works in plain steps
+1) The dialog fetches or receives a list of users to display (followers or following).
+2) It renders that list with small clickable rows.
+3) The Follow button sends a request to the server and updates the label locally.
+
+Why use a dialog
+- It provides a quick way to view followers without navigating away from the current page.
+
+Testing steps
+1. Open the followers list from a profile and confirm it shows the correct users.
+2. Click a user to open their profile in a new page or overlay.
+3. Click Follow/Unfollow and confirm the button updates and the server request returns success.
+
+Developer notes
+- Use virtualization for very large lists to maintain performance.
+- Ensure the dialog handles empty states gracefully: show "No followers yet" when list is empty.
+
+Next reading
+- `docs/components/profile.txt` — to see where FollowListDialog is used and how follower data is represented.

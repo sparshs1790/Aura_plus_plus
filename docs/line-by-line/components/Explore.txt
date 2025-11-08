@@ -1,0 +1,86 @@
+Explore.jsx — Line-by-line, token-level explanation (for absolute beginners)
+
+File: frontend/src/components/Explore.jsx
+Goal: Explain each line, symbol, and punctuation so beginners understand what each part does.
+
+1) import React, { useEffect, useState } from 'react';
+- import: bring things from another file or package.
+- React: main library.
+- , separates items.
+- { useEffect, useState }: take two React hooks:
+  - useEffect: run side effects like fetching data when component mounts.
+  - useState: local state memory.
+- from 'react': module source.
+- ; semicolon ends the statement.
+
+2) const fetchNekos = async (count = 9) => {
+- Define a function named fetchNekos that asks an external API for images.
+- async: the function will use await inside (it returns a promise).
+- (count = 9): the parameter count has a default value 9 if the caller doesn't provide one.
+- => starts the function body.
+
+3) const res = await fetch(`https://nekos.best/api/v2/neko?amount=${count}`);
+- Use global fetch to call the remote URL.
+- Backticks `...` are template strings which allow ${count} insertion.
+- await waits for the network call to finish and stores the response in res.
+
+4) const data = await res.json();
+- res.json() parses the HTTP response body as JSON; await waits for it.
+
+5) return data.results || [];
+- return the results array from data if present; otherwise return an empty array [].
+- || returns the right-hand value when the left-hand side is falsey (null/undefined/empty string).
+
+6) const Explore = () => {
+- Define the Explore component as a function.
+
+7) const [images, setImages] = useState([]);
+- images is an array in state, starts empty.
+- setImages updates it.
+
+8) const [loading, setLoading] = useState(false);
+- loading boolean state for network activity.
+
+9) const [modalImg, setModalImg] = useState(null);
+- modalImg holds the URL of the image currently shown in the large modal; null means none.
+
+10) useEffect(() => { loadNekos(12); // eslint-disable-next-line }, []);
+- useEffect runs the function when component mounts.
+- loadNekos(12) requests 12 images initially.
+- [] is dependency array: empty means run only once after first render.
+- // eslint-disable-next-line is a comment telling the linter to ignore the next rule (not important for beginners).
+
+11) useEffect(() => { const handleScroll = () => { if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 200 && !loading) { loadNekos(9); } }; window.addEventListener('scroll', handleScroll); return () => window.removeEventListener('scroll', handleScroll); // eslint-disable-next-line }, [loading, images]);
+- This effect sets up infinite scroll: it checks when the user scrolls near the bottom and if not loading, loads more images.
+- handleScroll is a function that checks window position and calls loadNekos(9) to append 9 more images.
+- window.addEventListener('scroll', handleScroll): register scroll handler.
+- return () => window.removeEventListener('scroll', handleScroll): cleanup when component unmounts.
+- [loading, images] as dependencies means the effect re-runs if loading or images change (important to keep handler up-to-date).
+
+12) const loadNekos = async (count) => { setLoading(true); try { const newImages = await fetchNekos(count); setImages(prev => [...prev, ...newImages]); } catch (err) { // Optionally handle error } finally { setLoading(false); } };
+- loadNekos fetches new images using fetchNekos(count).
+- setImages(prev => [...prev, ...newImages]) uses a callback where prev is the previous images array; ...prev spreads the old items into a new array and ...newImages adds the new images at the end.
+- try/catch/finally handles errors and ensures loading gets reset.
+
+13) return ( <div className="flex flex-col items-center bg-[#fafafa] min-h-screen"> ... </div> );
+- The JSX part renders the page: a title, a responsive grid of images, a loading indicator, and a modal that opens when a user clicks an image.
+
+14) {images.map((item, idx) => ( <div key={item.url + idx} ...> <img src={item.url} alt="neko" ... onClick={() => setModalImg(item.url)} /> </div> ))}
+- images.map loops through each image item and returns a small card for each.
+- key={item.url + idx}: React needs unique keys for each item to track list updates. Concatenate url with index as a simple key.
+- onClick={() => setModalImg(item.url)}: clicking image sets modalImg to that URL which opens the modal.
+
+15) {loading && ( <div className="my-6 text-gray-500">Loading more images...</div> )}
+- If loading is true, show a short loading message. The && operator shows the right-hand side only when left is truthy.
+
+16) {modalImg && ( <div className="fixed inset-0 ..."> <img src={modalImg} ... /> <button onClick={() => setModalImg(null)}>✕</button> </div> )}
+- If modalImg is set, render a full-screen overlay with the large image and a close button.
+- setModalImg(null) clears the modal image and closes the overlay.
+
+17) export default Explore;
+- Make the Explore component available to import from other files.
+
+--- Beginner summary ---
+- Explore fetches images from a public API, shows them in a grid, and loads more as you scroll down. Clicking an image opens a larger view in a modal.
+
+End of Explore line-by-line doc.

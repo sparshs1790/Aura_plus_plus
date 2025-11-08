@@ -1,0 +1,45 @@
+Feed.jsx — Line-by-line, word-by-word explanation (for beginners)
+
+File: frontend/src/components/Feed.jsx
+Goal: Explain each line so a beginner understands how the main Feed area shows posts.
+
+```jsx
+import React from 'react'
+import Posts from './Posts'
+```
+- import React: brings React functionality.
+- import Posts: bring the Posts component which renders a list of Post cards.
+
+```jsx
+const Feed = () => {
+  return (
+    <div className='flex-1 my-8 flex flex-col items-center pl-[20%]'>
+        <Posts/>
+    </div>
+  )
+}
+
+export default Feed
+```
+
+Line-by-line explanation
+- const Feed = () => { ... }
+  - Defines the Feed component as a small function that returns the main feed UI.
+
+- <div className='flex-1 my-8 flex flex-col items-center pl-[20%]'>
+  - A container with style classes (Tailwind CSS). These class names control spacing, layout, and padding:
+    - 'flex-1' means this container expands to use available space.
+    - 'my-8' adds vertical margin.
+    - 'flex flex-col items-center' arranges inner elements vertically and centers them.
+    - 'pl-[20%]' adds left padding of 20% (moves content away from left).
+
+- <Posts/>
+  - This is where the list of posts appears; Posts renders many Post components.
+
+- export default Feed
+  - Makes Feed usable by other parts of the app.
+
+Child-friendly summary
+- Feed is like the middle column of a social app where you scroll through pictures and posts. It just places the Posts component inside a nicely spaced box.
+
+End of Feed.jsx explanation.

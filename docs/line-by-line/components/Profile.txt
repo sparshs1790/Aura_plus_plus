@@ -1,0 +1,77 @@
+Profile.jsx — Line-by-line, token-level explanation (for absolute beginners)
+
+File: frontend/src/components/Profile.jsx
+Goal: Explain each line and punctuation so a beginner understands how the profile page loads a user's posts and shows profile info.
+
+--- Top imports ---
+1) import React, { useEffect, useState } from 'react'
+- Import React and hooks for lifecycle (`useEffect`) and local state (`useState`).
+
+2) import { useParams } from 'react-router-dom'
+- Hook to read URL parameters, e.g., the profile's user id.
+
+3) import axios from 'axios'
+- HTTP client used to fetch profile data and posts.
+
+4) import Posts from './Posts'
+- Component that renders a list/grid of `Post` items.
+
+5) import EditProfile from './EditProfile'
+- Component that allows editing profile details (used conditionally if the auth user is viewing their own profile).
+
+--- Component ---
+6) const Profile = () => {
+- Define Profile component.
+
+7) const { id } = useParams()
+- Extract the `id` route parameter (the profile user id).
+
+8) const [profile, setProfile] = useState(null)
+- Local state to store profile user data.
+
+9) const [posts, setPosts] = useState([])
+- Local state to store posts authored by the profile user.
+
+10) const url = import.meta.env.VITE_URL || 'http://localhost:5000'
+- Backend base URL.
+
+--- data fetching ---
+11) useEffect(() => {
+    const fetchProfile = async () => {
+        const res = await axios.get(`${url}/api/v1/user/${id}`, { withCredentials: true })
+        if (res.data.success) { setProfile(res.data.user) }
+    }
+    const fetchPosts = async () => {
+        const res = await axios.get(`${url}/api/v1/post/user/${id}`, { withCredentials: true })
+        if (res.data.success) { setPosts(res.data.posts) }
+    }
+    fetchProfile(); fetchPosts();
+}, [id])
+- On mount and when `id` changes, fetch profile info and posts for that user and store them in local state.
+
+--- JSX ---
+12) return (
+    <div className='max-w-4xl mx-auto mt-6'>
+        {profile && (
+            <header className='flex items-center gap-4 mb-6'>
+                <img src={profile.avatar} alt={`${profile.username} avatar`} className='w-20 h-20 rounded-full' />
+                <div>
+                    <h2 className='text-xl font-semibold'>{profile.username}</h2>
+                    <p className='text-sm text-gray-500'>{profile.bio}</p>
+                </div>
+                {/* If the logged-in user is viewing their own profile, show EditProfile */}
+                <EditProfile />
+            </header>
+        )}
+        <Posts posts={posts} />
+    </div>
+)
+- Render profile header (avatar, name, bio) when `profile` exists, and render `Posts` with the fetched posts.
+
+13) export default Profile
+- Export the component.
+
+--- Beginner summary ---
+- `Profile.jsx` uses the URL `id` to fetch that user's details and posts, shows a header with avatar/name/bio, and renders their posts below.
+
+End of Profile line-by-line doc.

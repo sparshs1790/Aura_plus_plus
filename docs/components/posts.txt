@@ -1,0 +1,39 @@
+Posts.jsx — Beginner-friendly explanation
+
+File path: frontend/src/components/Posts.jsx
+Purpose: Renders a list of `Post` components (the feed or a user's profile gallery). Handles layout, empty states and passing data to each `Post`.
+
+Overview
+- `Posts` receives a `posts` array via props or reads from Redux store. It maps over the array and renders `<Post post={singlePost} />` for each item.
+- Also handles pagination or infinite scroll in more advanced versions.
+
+Typical props
+- posts: array of post objects
+- isProfile?: boolean (if true, render a profile-specific layout)
+
+--- Key parts ---
+1. imports
+- React, Post component, maybe Skeleton loaders for loading state.
+
+2. Conditional rendering
+- If posts.length === 0 → show empty state: "No posts yet" with a nice graphic.
+
+3. Mapping
+- posts.map((post) => <Post key={post._id} post={post} />)
+- Use unique key prop to help React track list items.
+
+4. Layout
+- Grid or vertical feed depending on screen size. Uses Tailwind classes like `grid grid-cols-1 md:grid-cols-2 gap-4` for responsive layout.
+
+--- Edge cases ---
+- When a post is deleted from the feed, ensure the component re-renders with updated posts from Redux.
+- When posts are still loading, show skeleton placeholders instead of an empty state.
+- Beware mutating the posts array; always use immutable updates so React notices changes.
+
+--- Testing ---
+- Provide a short posts array and render `Posts` to confirm it renders one `Post` per item.
+- Test empty array and loading states.
+
+--- Integration ---
+- `Feed.jsx` typically fetches posts from API and passes them to `Posts`.
+- `Profile.jsx` filters posts for a single user and passes them to `Posts` for the grid view.

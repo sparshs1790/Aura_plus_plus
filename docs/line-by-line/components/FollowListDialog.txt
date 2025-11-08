@@ -1,0 +1,74 @@
+FollowListDialog.jsx — Line-by-line, token-level explanation (for absolute beginners)
+
+File: frontend/src/components/FollowListDialog.jsx
+Goal: Explain how a dialog shows a list of followers or following users and how it can be opened/closed.
+
+--- Top imports ---
+1) import React, { useState } from 'react'
+- Import React and the `useState` hook for local open/closed state.
+
+2) import { Dialog } from './ui/dialog'
+- A UI primitive dialog component used to show modal content.
+
+3) import { Button } from './ui/button'
+- Button primitive used to open the dialog.
+
+4) import axios from 'axios'
+- HTTP client used to fetch follower/following data when needed.
+
+--- Component ---
+5) const FollowListDialog = ({ userId, type = 'followers' }) => {
+- Define the component. Props:
+  - `userId`: the id of the user whose follow lists we want to view.
+  - `type`: either 'followers' or 'following' to choose which list to show. Defaults to 'followers'.
+
+6) const [open, setOpen] = useState(false)
+- Local boolean state to track whether the dialog is open.
+
+7) const [list, setList] = useState([])
+- Local state to store the array of users for the selected list.
+
+8) const url = import.meta.env.VITE_URL || 'http://localhost:5000'
+- Backend base URL.
+
+--- fetch function ---
+9) const fetchList = async () => {
+    try {
+        const res = await axios.get(`${url}/api/v1/user/${userId}/${type}`, { withCredentials: true })
+        if (res.data.success) setList(res.data.users)
+    } catch (error) { console.error(error) }
+}
+- Fetches either followers or following depending on `type` and stores them in `list`.
+
+--- open handler ---
+10) const openDialog = async () => { await fetchList(); setOpen(true); }
+- When opening the dialog, fetch data first then set `open` to true.
+
+--- JSX ---
+11) return (
+    <>
+        <Button onClick={openDialog}>{type === 'followers' ? 'View Followers' : 'View Following'}</Button>
+        <Dialog open={open} onOpenChange={setOpen}>
+            <Dialog.Title>{type === 'followers' ? 'Followers' : 'Following'}</Dialog.Title>
+            <Dialog.Content>
+                <ul>
+                    {list.map(u => (
+                        <li key={u._id} className='p-2 border-b'><img src={u.avatar} alt='' className='w-8 h-8 rounded-full inline-block mr-2'/> {u.username}</li>
+                    ))}
+                </ul>
+            </Dialog.Content>
+            <Dialog.Close asChild>
+                <Button>Close</Button>
+            </Dialog.Close>
+        </Dialog>
+    </>
+)
+- Renders a button to open the dialog. Inside the dialog, shows a title and a list of users. The close button sets `open` to false via the Dialog primitive's `onOpenChange`.
+
+12) export default FollowListDialog
+- Export the component.
+
+--- Beginner summary ---
+- `FollowListDialog.jsx` is a modal that fetches and displays a user's followers or following users when opened. It fetches data just before opening to ensure fresh results.
+
+End of FollowListDialog line-by-line doc.

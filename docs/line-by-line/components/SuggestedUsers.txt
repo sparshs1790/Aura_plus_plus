@@ -1,0 +1,56 @@
+SuggestedUsers.jsx — Line-by-line, token-level explanation (for absolute beginners)
+
+File: frontend/src/components/SuggestedUsers.jsx
+Goal: Explain how a small list of suggested users is rendered, how follow buttons work, and how each item is structured.
+
+--- Top imports ---
+1) import React from 'react'
+- Import React to use JSX and create the component.
+
+2) import { Avatar, AvatarImage } from './ui/avatar'
+- Avatar primitives used to show each user's picture.
+
+3) import { Button } from './ui/button'
+- Button used for the "Follow" action.
+
+4) import axios from 'axios'
+- HTTP client used to send follow requests.
+
+--- Component ---
+5) const SuggestedUsers = ({ users = [] }) => {
+- Define SuggestedUsers. It receives `users` prop and defaults to an empty array to avoid runtime errors.
+
+6) const handleFollow = async (userId) => {
+    try {
+        await axios.post(`/api/v1/user/follow/${userId}`, {}, { withCredentials: true })
+        // In a real app we'd update UI state after success (optimistic update or refetch)
+    } catch (error) { console.error(error) }
+}
+- `handleFollow` sends a follow request to the server. Error handling logs problems.
+
+--- JSX ---
+7) return (
+    <ul className='space-y-2'>
+        {users.map(u => (
+            <li key={u._id} className='flex items-center justify-between'>
+                <div className='flex items-center gap-3'>
+                    <Avatar><AvatarImage src={u.avatar} /></Avatar>
+                    <div>
+                        <div className='text-sm font-medium'>{u.username}</div>
+                        <div className='text-xs text-gray-500'>{u.bio}</div>
+                    </div>
+                </div>
+                <Button onClick={() => handleFollow(u._id)}>Follow</Button>
+            </li>
+        ))}
+    </ul>
+)
+- For each user render an item with avatar, username, bio, and a follow button.
+
+8) export default SuggestedUsers
+- Export the component.
+
+--- Beginner summary ---
+- `SuggestedUsers` receives an array of user objects and renders them with a "Follow" button. Clicking follow sends a request to the backend. In a full app you'd update the UI when the follow request succeeds.
+
+End of SuggestedUsers line-by-line doc.

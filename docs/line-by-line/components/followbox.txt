@@ -1,0 +1,45 @@
+followbox.jsx — Line-by-line, token-level explanation (for absolute beginners)
+
+File: frontend/src/components/followbox.jsx
+Goal: Explain the small ‘follow box’ UI that lists followers/following or shows a compact follow control used in profile cards.
+
+--- Top imports ---
+1) import React from 'react'
+- Import React to be able to use JSX and return elements.
+
+2) import { Button } from './ui/button'
+- Button primitive for follow/unfollow actions.
+
+3) import { Avatar, AvatarImage } from './ui/avatar'
+- Avatar primitives to show user pictures.
+
+--- Component ---
+4) const FollowBox = ({ user, isFollowing = false, onToggle }) => {
+- Define FollowBox component with props:
+  - `user`: user object to display (username, avatar, _id).
+  - `isFollowing`: boolean indicating whether the current viewer already follows this user. Defaults to false.
+  - `onToggle`: callback called when follow/unfollow is clicked.
+
+5) return (
+    <div className='flex items-center justify-between p-2'>
+        <div className='flex items-center gap-3'>
+            <Avatar><AvatarImage src={user.avatar} /></Avatar>
+            <div>
+                <div className='text-sm font-medium'>{user.username}</div>
+                <div className='text-xs text-gray-500'>{user.bio}</div>
+            </div>
+        </div>
+        <div>
+            <Button onClick={() => onToggle(user._id)}>{isFollowing ? 'Unfollow' : 'Follow'}</Button>
+        </div>
+    </div>
+)
+- Render the user's avatar and information on the left and a follow/unfollow button on the right that calls `onToggle` with the user's id.
+
+6) export default FollowBox
+- Export the component.
+
+--- Beginner summary ---
+- `followbox.jsx` is a tiny UI used in lists: it shows a small profile preview and a button to follow or unfollow. It delegates the actual follow logic to the `onToggle` callback so the parent can decide how to update state or call the server.
+
+End of followbox.jsx line-by-line doc.

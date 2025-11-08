@@ -1,0 +1,244 @@
+CommentDialog.jsx — Line-by-line, token-level explanation (for absolute beginners)
+
+File: frontend/src/components/CommentDialog.jsx
+Goal: Explain each line and punctuation so even a beginner understands how the comment dialog works, including navigation arrows and keyboard support.
+
+--- Top imports ---
+1) import React, { useEffect, useMemo, useState } from 'react'
+- import: bring code from another module.
+- React: the core library object.
+- { useEffect, useMemo, useState }: specific hooks from React:
+  - useEffect: run side effects (like fetching or listening to keyboard events).
+  - useMemo: cache a computed value until its inputs change.
+  - useState: local state in a function component.
+- from 'react': module name.
+
+2) import { Dialog, DialogContent, DialogTrigger, DialogTitle, DialogDescription } from './ui/dialog'
+- Import dialog building blocks used to create accessible popups.
+
+3) import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar'
+- Components for the avatar image with a fallback.
+
+4) import { Link } from 'react-router-dom'
+- Link: renders an anchor that works with the app router (single-page navigation).
+
+5) import { MoreHorizontal, ChevronLeft, ChevronRight } from 'lucide-react'
+- Icons used in the dialog UI.
+
+6) import { Button } from './ui/button'
+- Styled button component.
+
+7) import { useDispatch, useSelector } from 'react-redux'
+- Hooks to read and update the Redux store.
+
+8) import Comment from './Comment'
+- Component to render a single comment.
+
+9) import axios from 'axios'
+- HTTP client for API calls.
+
+10) import { toast } from 'sonner'
+- Small library to show toast notifications.
+
+11) import { setPosts, setSelectedPost } from '@/redux/postSlice'
+- Redux actions to update posts and set the selected post globally.
+
+12) import { motion, AnimatePresence } from "framer-motion";
+- Framer Motion components for smooth animations.
+
+--- Component signature ---
+13) const CommentDialog = ({ open, setOpen, scopePosts }) => {
+- Define a function component named CommentDialog.
+- It receives props destructured into open, setOpen, and scopePosts.
+  - open: a boolean to say whether the dialog is visible.
+  - setOpen: a function to change the open state.
+  - scopePosts: optional list of posts or post IDs to scope left/right navigation to (useful for profile view vs feed).
+
+--- Local state & selectors ---
+14) const [text, setText] = useState("");
+- text: state for the comment text box; starts empty string.
+
+15) const { selectedPost, posts } = useSelector(store => store.post);
+- Read selectedPost and posts array from Redux post slice.
+
+16) const [comment, setComment] = useState([]);
+- Local comment list for the currently displayed post.
+
+17) const [direction, setDirection] = useState(0); // -1 left, +1 right for slide transitions
+- direction tracks slide animation direction; used by framer-motion to animate image sliding left or right.
+
+18) const { user } = useSelector(store => store.auth);
+- Read current user from Redux auth slice.
+
+19) const dispatch = useDispatch();
+- dispatch sends actions to Redux.
+
+20) const url = import.meta.env.VITE_URL || 'http://localhost:5000';
+- Backend base url from environment or fallback.
+
+--- Normalize navPosts (scoped navigation) ---
+21) const rawNav = Array.isArray(scopePosts) ? scopePosts : posts;
+- rawNav is either the supplied scopePosts (if it's an array) or the global posts array.
+
+22) const navPosts = useMemo(() => (
+      rawNav
+        .map(item => {
+          if (!item) return null;
+          if (typeof item === 'object' && item._id) return item;
+          if (typeof item === 'string') {
+            const match = posts.find(p => String(p._id) === String(item));
+            return match || null;
+          }
+          return null;
+        })
+        .filter(Boolean)
+  ), [rawNav, posts]);
+- useMemo caches the computed navPosts until rawNav or posts change.
+- It maps each item from rawNav:
+  - If item is an object with _id, it's already a full post — return it.
+  - If item is a string, try to find the full post in global posts by matching ids.
+  - Filter(Boolean) removes null or undefined entries.
+- The result navPosts is an array of full post objects used for left/right navigation.
+
+--- Keep track of current index in navPosts ---
+23) const [currentIndex, setCurrentIndex] = useState(-1);
+- currentIndex stores which index in navPosts is currently selected. -1 means none.
+
+24) useEffect(() => {
+    if (!selectedPost || !navPosts.length) {
+      setCurrentIndex(-1);
+      return;
+    }
+    const idx = navPosts.findIndex(item => String(item._id) === String(selectedPost._id));
+    setCurrentIndex(idx);
+  }, [selectedPost, navPosts]);
+- This effect updates currentIndex whenever selectedPost or navPosts change.
+- It finds the index of selectedPost within navPosts using findIndex and stringified id comparison.
+
+25) const canNavigate = navPosts.length > 1 && currentIndex !== -1;
+- Boolean that is true when navigation is possible (we have more than one post and a valid current index).
+
+--- goToAdjacentPost — circular navigation ---
+26) const goToAdjacentPost = (direction) => {
+    const len = navPosts?.length || 0;
+    if (len < 2 || currentIndex === -1) return;
+    const delta = direction === 'left' ? -1 : 1;
+    setDirection(delta);
+    const newIdx = (currentIndex + delta + len) % len; // wrap-around
+    const newPost = navPosts[newIdx];
+    // Update selected post in redux so the rest of the app is in sync
+    dispatch(setSelectedPost(newPost));
+    // Also update local comment list immediately for snappy UI
+    setComment(newPost.comments || []);
+    setCurrentIndex(newIdx);
+  }
+- This function moves left or right and wraps around using modular arithmetic.
+- delta is -1 or +1 depending on direction.
+- newIdx computes the wrapped index, ensuring it stays within [0, len-1].
+- It dispatches setSelectedPost(newPost) to update global selection and sets local comment state.
+
+27) useEffect(() => {
+    if (selectedPost) {
+      setComment(selectedPost.comments);
+    }
+  }, [selectedPost]);
+- When selectedPost changes, update the local comment list.
+
+--- Keyboard navigation effect ---
+28) useEffect(() => {
+    if (!open) return;
+
+    const keyHandler = (e) => {
+      if (e.ctrlKey || e.metaKey || e.altKey) return;
+      const active = document.activeElement;
+      const tag = active?.tagName;
+      if (tag === 'INPUT' || tag === 'TEXTAREA' || active?.isContentEditable) return;
+
+      if (e.key === 'ArrowLeft') {
+        e.preventDefault();
+        goToAdjacentPost('left');
+      } else if (e.key === 'ArrowRight') {
+        e.preventDefault();
+        goToAdjacentPost('right');
+      }
+    };
+
+    window.addEventListener('keydown', keyHandler);
+    return () => window.removeEventListener('keydown', keyHandler);
+  }, [open, currentIndex, navPosts.length]);
+- Adds a keydown listener when dialog is open.
+- Ignores events when modifier keys are pressed or when the user is typing in an input.
+- ArrowLeft and ArrowRight trigger navigation.
+- Cleanup removes the listener when effect dependencies change or component unmounts.
+
+--- Input change handler ---
+29) const changeEventHandler = (e) => {
+    const inputText = e.target.value;
+    if (inputText.trim()) {
+      setText(inputText);
+    } else {
+      setText("");
+    }
+  }
+- Similar to earlier code: reads typed text and sets state, trimming whitespace.
+
+--- sendMessageHandler (posting a comment) ---
+30) const sendMessageHandler = async () => {
+    try {
+      const res = await axios.post(`${url}/api/v1/post/${selectedPost?._id}/comment`, { text }, { headers: { 'Content-Type': 'application/json' }, withCredentials: true });
+
+      if (res.data.success) {
+        const updatedCommentData = [...comment, res.data.comment];
+        setComment(updatedCommentData);
+
+        const updatedPostData = posts.map(p => p._id === selectedPost._id ? { ...p, comments: updatedCommentData } : p );
+        dispatch(setPosts(updatedPostData));
+        toast.success(res.data.message);
+        setText("");
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  }
+- Posts the new comment to backend; on success, appends comment locally and updates Redux posts so UI stays synced.
+
+31) const deletePostHandler = async () => { ... }
+- Similar to Post component: sends DELETE request, filters out deleted post from global posts, shows a toast, handles errors gracefully.
+
+32) const SPECIAL_USER_ID = import.meta.env.VITE_SPECIAL_USER_ID || '68d37e416d154171a2ebc9e7';
+- Admin-like user id used to allow deletion.
+
+--- Render / JSX ---
+33) return (
+    <Dialog open={open} onOpenChange={setOpen}>
+      <AnimatePresence>
+        {open && (
+          <DialogContent className="...">
+            <motion.div key="dialog-motion" initial={{ opacity: 0, y: 24, scale: 0.98 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: 24, scale: 0.98 }} transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }} className="flex flex-col">
+
+- Dialog opens when open is true. AnimatePresence adds animation for mounting/unmounting.
+- DialogContent contains the layout and animation wrappers.
+
+34) Navigation Buttons (left and right):
+- Two <Button> elements placed absolutely to the left and right of the dialog. They call goToAdjacentPost('left'/'right') when clicked and are disabled when navigation isn't possible.
+- aria-label provides an accessible name for screen readers.
+
+35) Left panel: Post image
+- Uses AnimatePresence + motion.img to animate image changes with a slide effect based on direction state. draggable={false} prevents dragging the image.
+
+36) Right panel: Post details and comments
+- Shows author avatar and username, options dialog (Unfollow, Add to favorites, Delete) that conditionally renders Delete when user is owner or admin.
+
+37) Comments list
+- Renders comment.map(...) inside a motion.div. Each comment is wrapped in a motion.div to stagger the reveal animation.
+
+38) Add Comment UI
+- Input bound to text state, Send button disabled when trimmed text is empty. Clicking Send calls sendMessageHandler.
+
+39) Closing tags and export
+- Close all opened tags and export default CommentDialog so other files can import it.
+
+--- Child-friendly summary ---
+- This dialog shows a big view of a post and its comments. You can move to the next/previous post using arrow buttons or left/right keyboard arrows. You can add a new comment, and if you're the author (or special admin), you can delete the post.
+
+End of CommentDialog line-by-line doc.

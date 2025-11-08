@@ -1,0 +1,26 @@
+LeftSideBar.jsx — Beginner-friendly guide
+
+File path: frontend/src/components/LeftSideBar.jsx
+Purpose: Renders the main navigation for the app: links to Home, Explore, Messages, Profile, and other primary pages.
+
+What a non-coder sees
+- A vertical list of icons and labels on the left side of the screen. Clicking a label navigates to that page.
+
+What the code does (step-by-step)
+1) Shows static navigation items (Home, Explore, Messages, Profile).
+2) Highlights the active route so the user knows where they are.
+3) Optionally shows a small avatar and a quick link to the current user's profile.
+
+Why it's useful
+- Keeps navigation consistent across the app so users can move between main sections quickly.
+
+How to test
+1. Click each navigation link and confirm you are taken to the correct page.
+2. Resize the browser to verify the sidebar is hidden or collapses on small screens.
+
+Developer notes
+- Use `NavLink` from `react-router-dom` to automatically get an active state.
+- Keep the component simple — it should only render links and not fetch heavy data.
+
+Next reading
+- `docs/components/mainLayout.txt` for how the sidebar is placed in the layout.

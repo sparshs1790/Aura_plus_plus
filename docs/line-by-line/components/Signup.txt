@@ -1,0 +1,77 @@
+Signup.jsx — Line-by-line, token-level explanation (for absolute beginners)
+
+File: frontend/src/components/Signup.jsx
+Goal: Explain each line and punctuation so a beginner can follow how the signup/registration form works and how it creates a new user.
+
+--- Top imports ---
+1) import React, { useState } from 'react'
+- Import React and `useState` hook for local state.
+
+2) import { Input } from './ui/input'
+- Input UI primitive.
+
+3) import { Button } from './ui/button'
+- Button UI primitive.
+
+4) import axios from 'axios'
+- HTTP client used to send signup data.
+
+5) import { useNavigate } from 'react-router-dom'
+- Hook to navigate after successful signup.
+
+6) import { useDispatch } from 'react-redux'
+- Hook to dispatch actions to Redux (e.g., saving auth user).
+
+--- Component ---
+7) const Signup = () => {
+- Define the Signup component.
+
+8) const [username, setUsername] = useState('')
+- Local state for the username field.
+
+9) const [email, setEmail] = useState('')
+- Local state for the email field.
+
+10) const [password, setPassword] = useState('')
+- Local state for the password field.
+
+11) const navigate = useNavigate()
+- Initialize navigate function.
+
+12) const dispatch = useDispatch()
+- Initialize dispatch.
+
+13) const url = import.meta.env.VITE_URL || 'http://localhost:5000'
+- Base URL for backend API.
+
+--- submit handler ---
+14) const handleSubmit = async (e) => {
+    e.preventDefault()
+    try {
+        const res = await axios.post(`${url}/api/v1/user/signup`, { username, email, password }, { withCredentials: true })
+        if (res.data.success) { dispatch({ type: 'auth/setAuthUser', payload: res.data.user }); navigate('/') }
+    } catch (error) { console.error(error) }
+}
+- Prevent default, post signup data, handle success by saving user and navigating to home.
+
+--- JSX ---
+15) return (
+    <div className='max-w-md mx-auto mt-12 p-6 bg-white rounded-md shadow'>
+        <h2 className='text-xl font-semibold mb-4'>Sign up</h2>
+        <form onSubmit={handleSubmit} className='space-y-3'>
+            <Input value={username} onChange={e => setUsername(e.target.value)} placeholder='Username' />
+            <Input value={email} onChange={e => setEmail(e.target.value)} placeholder='Email' />
+            <Input type='password' value={password} onChange={e => setPassword(e.target.value)} placeholder='Password' />
+            <Button type='submit'>Create account</Button>
+        </form>
+    </div>
+)
+- Render controlled inputs and a submit button.
+
+16) export default Signup
+- Export component.
+
+--- Beginner summary ---
+- `Signup.jsx` captures username, email, and password and sends them to the server to create a new user. On success, it stores the user in the app and navigates to the home page.
+
+End of Signup line-by-line doc.

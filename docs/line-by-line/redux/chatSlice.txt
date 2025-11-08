@@ -1,0 +1,42 @@
+chatSlice.js — Line-by-line, token-level explanation (for absolute beginners)
+
+File: frontend/src/redux/chatSlice.js
+Goal: Explain how chat messages and online users are stored and updated in Redux.
+
+--- Top imports ---
+1) import { createSlice } from '@reduxjs/toolkit'
+- Helper to define slice, actions, and reducer.
+
+--- Initial state ---
+2) const initialState = { messages: [], onlineUsers: [], selectedUser: null }
+- `messages`: array of chat messages.
+- `onlineUsers`: list of connected user ids or objects.
+- `selectedUser`: the user currently open in the chat UI.
+
+--- Slice ---
+3) const chatSlice = createSlice({
+    name: 'chat',
+    initialState,
+    reducers: {
+        setMessages(state, action) { state.messages = action.payload },
+        addMessage(state, action) { state.messages.push(action.payload) },
+        setOnlineUsers(state, action) { state.onlineUsers = action.payload },
+        setSelectedUser(state, action) { state.selectedUser = action.payload }
+    }
+})
+- Reducers provided:
+  - `setMessages`: replace the messages array.
+  - `addMessage`: append one message.
+  - `setOnlineUsers`: replace the online users list.
+  - `setSelectedUser`: set which user is currently selected in chat.
+
+4) export const { setMessages, addMessage, setOnlineUsers, setSelectedUser } = chatSlice.actions
+- Export action creators.
+
+5) export default chatSlice.reducer
+- Export the reducer for the store.
+
+--- Beginner summary ---
+- `chatSlice` keeps chat UI state. Use `addMessage` to append an incoming message or `setMessages` to replace the list (e.g., after fetching history).
+
+End of chatSlice doc.

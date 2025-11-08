@@ -1,0 +1,21 @@
+input.jsx — Line-by-line, token-level explanation (for absolute beginners)
+
+File: frontend/src/components/ui/input.jsx
+Goal: Explain the Input primitive used for form fields so beginners understand controlled inputs and forwarding props.
+
+--- Top imports ---
+1) import React from 'react'
+- Import React so we can use JSX.
+
+--- Component ---
+2) export const Input = ({ value, onChange, placeholder = '', type = 'text', className = '', ...props }) => (
+    <input value={value} onChange={onChange} type={type} placeholder={placeholder} className={`w-full px-3 py-2 border rounded-md ${className}`} {...props} />
+)
+- `Input` is a controlled component: it receives `value` and `onChange` from the parent.
+- `type` allows password, email, etc.
+- `...props` forwards other native attributes like `aria-*` or `name`.
+
+--- Beginner summary ---
+- `Input` keeps styling consistent and encourages controlled inputs (parent holds the state). Use it like: `<Input value={email} onChange={e => setEmail(e.target.value)} placeholder='Email' />`.
+
+End of input doc.

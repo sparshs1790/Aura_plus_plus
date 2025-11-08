@@ -1,0 +1,55 @@
+Messages.jsx — Line-by-line, token-level explanation (for absolute beginners)
+
+File: frontend/src/components/Messages.jsx
+Goal: Explain how individual message bubbles are rendered and how the list scrolls and groups messages.
+
+--- Top imports ---
+1) import React, { useEffect, useRef } from 'react'
+- React and hooks: useEffect for lifecycle and useRef to keep a DOM reference for scrolling.
+
+2) import { useSelector } from 'react-redux'
+- Hook to read messages and user info from Redux state.
+
+3) import { Avatar, AvatarImage } from './ui/avatar'
+- Avatar UI primitives for showing user's picture.
+
+--- Component ---
+4) const Messages = ({ selectedUser }) => {
+- Define Messages which receives selectedUser prop indicating who we're chatting with.
+
+5) const { messages = [], authUser } = useSelector(s => ({ messages: s.chat.messages, authUser: s.auth.user }))
+- Pull messages and current authenticated user from Redux. Provide defaults as needed.
+
+6) const containerRef = useRef(null)
+- A ref attached to the scroll container so we can programmatically scroll to bottom.
+
+7) useEffect(() => { if (containerRef.current) { containerRef.current.scrollTop = containerRef.current.scrollHeight; } }, [messages])
+- When messages change, scroll the container to the bottom so newest messages are visible.
+
+--- JSX render ---
+8) return (
+    <div ref={containerRef} className='flex-1 overflow-auto px-4 space-y-3'>
+- The scrollable container for message bubbles.
+
+9) {messages.filter(m => (m.sender === selectedUser._id || m.receiver === selectedUser._id)).map(msg => {
+    const isMine = msg.sender === authUser._id
+    return (
+        <div key={msg._id} className={`flex ${isMine ? 'justify-end' : 'justify-start'}`}>
+            {!isMine && <Avatar><AvatarImage src={msg.senderAvatar}/></Avatar>}
+            <div className={`max-w-[60%] p-2 rounded-md ${isMine ? 'bg-blue-500 text-white' : 'bg-gray-100'}`}>{msg.text}</div>
+        </div>
+    )
+})}
+- Filter messages to only show those between the auth user and selectedUser. For each message, compute `isMine` and set layout and styles accordingly. Attach a stable key using `msg._id`.
+
+10) </div>
+11) )
+- Close JSX and return value.
+
+12) export default Messages
+- Export the component.
+
+--- Beginner summary ---
+- Messages shows a scrollable list of chat bubbles. It keeps the view scrolled to the bottom on new messages and styles sent vs received messages differently.
+
+End of Messages line-by-line doc.

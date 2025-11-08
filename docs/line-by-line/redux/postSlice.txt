@@ -1,0 +1,37 @@
+postSlice.js — Line-by-line, token-level explanation (for absolute beginners)
+
+File: frontend/src/redux/postSlice.js
+Goal: Explain how posts are stored globally and how selection for the comment dialog is handled.
+
+--- Top imports ---
+1) import { createSlice } from '@reduxjs/toolkit'
+- `createSlice` helps define reducer and actions.
+
+--- Initial state ---
+2) const initialState = { posts: [], selectedPost: null }
+- `posts`: array of post objects.
+- `selectedPost`: the post currently open in the CommentDialog or selected in the UI.
+
+--- Slice ---
+3) const postSlice = createSlice({
+    name: 'post',
+    initialState,
+    reducers: {
+        setPosts(state, action) { state.posts = action.payload },
+        setSelectedPost(state, action) { state.selectedPost = action.payload }
+    }
+})
+- Reducers:
+  - `setPosts`: sets the full posts array (used when fetching feed or user posts).
+  - `setSelectedPost`: sets the currently selected post (used to open comments dialog).
+
+4) export const { setPosts, setSelectedPost } = postSlice.actions
+- Export action creators for use across the app.
+
+5) export default postSlice.reducer
+- Export reducer for the Redux store.
+
+--- Beginner summary ---
+- `postSlice` centralizes post data. Fetch posts and dispatch `setPosts(posts)`; to open a post's comments, dispatch `setSelectedPost(post)`.
+
+End of postSlice doc.

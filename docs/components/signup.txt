@@ -1,0 +1,49 @@
+Signup.jsx — Plain-language walkthrough for people new to coding
+
+File path: `frontend/src/components/Signup.jsx`
+
+What this file does (simple):
+- Shows a form so a new person can create an account on the site. Think of it like signing up for a new email account — you provide a few details, and the site creates an account for you.
+
+What a user sees on the page:
+- Fields for email, password, confirm password, and usually a display name.
+- A Submit (Sign Up) button.
+- Helpful error messages if something is missing or incorrect.
+
+Step-by-step: what happens when a person signs up
+1) The user fills the form
+	- They type their email and password into input boxes. The page may check the email looks valid (it contains an `@`) or that the password is long enough.
+
+2) The user clicks Sign Up
+	- The browser sends a message to the server saying: "Create a new user with this email and password".
+	- This message is called an HTTP POST request.
+
+3) The server replies
+	- If everything is okay, the server creates the account and usually sends back a piece of information called a token (this is like a temporary key that proves you're logged in).
+	- If there is a problem (email already used, weak password), the server sends back an error message and the page shows it to the user.
+
+4) On success
+	- The app saves the token (so you stay logged in) and usually navigates you to the main page.
+
+Why the code checks fields on the client
+- Doing simple checks (like whether the passwords match) prevents unnecessary network requests and gives faster feedback to the user.
+
+Simple analogies
+- Signing up is like filling a membership form at a club and receiving a membership card (the token). The app keeps your card until you log out.
+
+Common beginner issues and how to fix them
+- "I clicked sign up and nothing happened" → Check for visible validation messages (like "passwords don't match"). Open the browser console (Advanced) to see network errors.
+- "Email already exists" → Use the password reset or choose a different email.
+
+How to test the Signup flow (step-by-step for beginners)
+1. Open the Signup page.
+2. Fill with a valid email and a password that meets the rules (e.g., 6+ characters).
+3. Click Sign Up and confirm you are redirected to the home page or a welcome screen.
+4. Try to sign up again with the same email — the server should return an error and the page should show a friendly message.
+
+Technical notes for maintainers (brief)
+- The component often uses `axios` to send a POST request to `/api/v1/auth/signup`.
+- On success the server returns a token and user object; the client stores that in Redux or localStorage and navigates to the app.
+
+Where to go next
+- `docs/components/login.txt` — explains how returning users sign in and how tokens are used to keep a session.

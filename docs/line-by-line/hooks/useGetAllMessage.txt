@@ -1,0 +1,48 @@
+useGetAllMessage.jsx — Line-by-line, token-level explanation (for absolute beginners)
+
+File: frontend/src/hooks/useGetAllMessage.jsx
+Goal: Explain what this hook does: fetches messages for the authenticated user (or conversation) and returns them for components.
+
+--- Top imports ---
+1) import { useEffect } from 'react'
+- Bring `useEffect` hook from React. `useEffect` runs side-effect code (like fetching) in function components.
+
+2) import axios from 'axios'
+- `axios` is an HTTP client used to call the backend API.
+
+3) import { useDispatch } from 'react-redux'
+- `useDispatch` lets the hook dispatch Redux actions to update global state.
+
+4) import { setMessages } from '@/redux/chatSlice'
+- `setMessages` is an action creator used to put fetched messages into the Redux store.
+
+--- Hook ---
+5) const useGetAllMessage = () => {
+- Define the hook function. Hooks are regular functions that can call other React hooks.
+
+6) const dispatch = useDispatch()
+- Get the `dispatch` function to send actions to Redux.
+
+7) const url = import.meta.env.VITE_URL || 'http://localhost:5000'
+- Backend base URL; fallback to localhost for development.
+
+8) useEffect(() => {
+    const fetchMessages = async () => {
+        try {
+            const res = await axios.get(`${url}/api/v1/message/all`, { withCredentials: true })
+            if (res.data.success) { dispatch(setMessages(res.data.messages)) }
+        } catch (error) { console.error(error) }
+    }
+    fetchMessages()
+}, [dispatch])
+- On mount, `useEffect` runs `fetchMessages` which calls the server endpoint `/message/all`.
+- On success, it dispatches `setMessages` with the returned messages.
+- The dependency array `[dispatch]` ensures the effect runs once unless dispatch reference changes (dispatch is stable, so it behaves like componentDidMount).
+
+9) export default useGetAllMessage
+- Make the hook available for components to import and use.
+
+--- Beginner summary ---
+- `useGetAllMessage` is a small data-loading hook that fetches chat messages on component mount and stores them in Redux. Components can import it and call it to ensure messages are loaded.
+
+End of useGetAllMessage doc.

@@ -1,0 +1,26 @@
+SuggestedBox.jsx — Beginner-friendly guide
+
+File path: frontend/src/components/SuggestedBox.jsx
+Purpose: Shows a curated list of users the app thinks you might want to follow. Usually appears in the right sidebar or as a small card.
+
+What the user sees
+- A short list: thumbnail avatar, username, and a Follow button next to each suggestion.
+
+How it works in plain language
+1) The app asks the server: "Who might this user want to follow?"
+2) The server returns a list of candidate users (based on following overlap, popularity, or other heuristics).
+3) The SuggestedBox renders these results; clicking Follow sends a request to follow that user.
+
+Why this is helpful
+- Helps users discover others and grow the social graph so the feed has more interesting content.
+
+Simple testing steps
+1. Open the page with suggestions and confirm the list is populated.
+2. Click Follow on one suggestion and see the UI update to show the user is now followed.
+
+Developer notes
+- Keep suggestions lightweight and consider pagination if the list is long.
+- Debounce follow button clicks to avoid double requests.
+
+Next reading
+- `docs/components/rightSideBar.txt` for how the SuggestedBox is placed into the UI.

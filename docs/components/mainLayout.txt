@@ -1,0 +1,43 @@
+MainLayout.jsx — Beginner-friendly walkthrough and examples
+
+File path: `frontend/src/components/MainLayout.jsx`
+
+What this file is (plain words)
+- This is the "frame" that wraps every page of the app. Imagine a website with a header at the top, a menu on the left, content in the middle, and suggestions on the right — `MainLayout` builds that consistent frame so every page looks and behaves the same.
+
+What a non-coder should expect visually
+- A top header (logo, search, profile avatar).
+- Left navigation (links to Home, Explore, Messages).
+- The middle area where pages like Feed, Profile, or Messages appear.
+- A right column for extras (suggested users, trending topics).
+
+How it works step-by-step (no coding knowledge required)
+1) The layout is always rendered around page content
+  - The router (the part that chooses which page to show) places the page content inside `MainLayout`.
+
+2) The header and sidebars are independent pieces
+  - Header, LeftSideBar and RightSideBar are separate components (like separate widgets). The layout places them in fixed positions.
+
+3) Responsive behavior (what happens on small screens)
+  - On small screens, the left or right sidebars may be hidden or collapsed to give more space to the main content. The layout uses CSS rules (Tailwind) to handle this automatically.
+
+Simple analogy
+- Think of a newspaper: the masthead (header) is at the top, the main column is the center, and sidebars are like the small opinion or ad columns. `MainLayout` arranges these fixed regions.
+
+Common tasks you might do here (for maintainers)
+- Add a global notification area (toast container) so messages appear in the same place across all pages.
+- Initialize a websocket (Socket.io) here so every page can use real-time features like messages or live notifications.
+
+Accessibility notes (simple)
+- Add a skip-to-content link at the top so keyboard users can jump directly to the main content.
+- Ensure header and sidebar links have good focus outlines and aria-labels.
+
+How to test layout behavior (beginner-friendly)
+1. Open different pages (Home, Profile, Messages) and confirm the header and left menu always stay visible.
+2. Resize the browser window to a small width and confirm the sidebars collapse and content remains usable.
+
+Technical tip for maintainers (short)
+- The layout often uses a CSS grid like `grid-cols-1 md:grid-cols-4` to create the columns. The main content usually spans the middle columns (e.g., `md:col-span-2`).
+
+Where to go next
+- `docs/components/home.txt` — shows how the layout composes the home page with Feed and sidebars.

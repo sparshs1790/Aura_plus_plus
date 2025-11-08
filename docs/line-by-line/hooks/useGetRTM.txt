@@ -1,0 +1,39 @@
+useGetRTM.jsx — Line-by-line, token-level explanation (for absolute beginners)
+
+File: frontend/src/hooks/useGetRTM.jsx
+Goal: Explain a hook that sets up real-time messaging (RTM) socket listeners and updates Redux or local state when messages arrive.
+
+--- Top imports ---
+1) import { useEffect } from 'react'
+- Bring `useEffect` to run setup/teardown logic.
+
+2) import { useDispatch, useSelector } from 'react-redux'
+- `useDispatch` to send actions; `useSelector` to read socket or auth state needed to initialize listeners.
+
+3) import { setMessages } from '@/redux/chatSlice'
+- Action to store incoming messages.
+
+--- Hook ---
+4) const useGetRTM = (socket) => {
+- Define the hook which accepts a `socket` instance (e.g., from socket.io client) to attach listeners to.
+
+5) const dispatch = useDispatch()
+- Get dispatch function.
+
+6) useEffect(() => {
+    if (!socket) return
+    const onNewMessage = (msg) => { dispatch(setMessages(prev => [...prev, msg])) }
+    socket.on('receive_message', onNewMessage)
+    return () => { socket.off('receive_message', onNewMessage) }
+}, [socket, dispatch])
+- When `socket` is available, register `onNewMessage` to listen for `receive_message` events.
+- The event handler dispatches an action to add the incoming message to the store.
+- On cleanup (unmount or socket change), remove the listener to avoid duplicates.
+
+7) export default useGetRTM
+- Export the hook.
+
+--- Beginner summary ---
+- `useGetRTM` wires a socket to Redux: it listens for incoming messages and stores them. It also cleans up listeners to prevent memory leaks or duplicate handlers.
+
+End of useGetRTM doc.

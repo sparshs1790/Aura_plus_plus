@@ -1,0 +1,52 @@
+RightSideBar.jsx — Line-by-line, token-level explanation (for absolute beginners)
+
+File: frontend/src/components/RightSideBar.jsx
+Goal: Explain each line and punctuation so a beginner understands how the right column suggests users and shows small widgets.
+
+--- Top imports ---
+1) import React from 'react'
+- Import React so we can use JSX and create a component.
+
+2) import SuggestedBox from './SuggestedBox'
+- SuggestedBox is a child component that shows recommended users to follow.
+
+3) import FollowListDialog from './FollowListDialog'
+- A small dialog component that shows a list of followers/following when opened.
+
+--- Component ---
+4) const RightSideBar = () => {
+- Define the RightSideBar functional component.
+
+5) return (
+    <aside className='hidden lg:block w-1/4 p-4'>
+- Render an <aside> element which is hidden on small screens and takes 1/4 width on large displays.
+
+6) <div className='sticky top-6 space-y-4'>
+- Make the content sticky with some spacing between child blocks.
+
+7) <SuggestedBox />
+- Include the SuggestedBox component which handles showing suggested users.
+
+8) <div className='p-3 rounded-md bg-white shadow-sm'>
+    <h4 className='text-sm font-semibold mb-2'>Trends</h4>
+    <p className='text-xs text-gray-500'>Show trending topics or small widgets here</p>
+</div>
+- A simple card showing a placeholder for trending items or widgets.
+
+9) <FollowListDialog />
+- Add the FollowListDialog component which can open to show followers/following lists.
+
+10) </div>
+11) </aside>
+- Close the wrapper elements.
+
+12) }
+- Close the component function.
+
+13) export default RightSideBar
+- Export the component to be used elsewhere.
+
+--- Beginner summary ---
+- RightSideBar holds UI blocks like suggestions and trends. It stays visible on large screens and uses small components for the actual content.
+
+End of RightSideBar line-by-line doc.

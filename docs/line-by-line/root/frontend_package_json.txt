@@ -1,0 +1,42 @@
+package.json (frontend) — Line-by-line, token-level explanation (for absolute beginners)
+
+File: frontend/package.json
+Goal: Explain the frontend project's package.json: scripts, dependencies, devDependencies, and useful fields for running and building the app.
+
+--- Top-level fields ---
+1) {
+- Start of JSON object.
+
+2) "name": "frontend",
+- Package name; helpful for identifying the project.
+
+3) "version": "0.0.0",
+- Semantic version of the project (often not critical for frontend apps in development).
+
+4) "private": true,
+- Prevents accidental publishing to npm.
+
+--- Scripts ---
+5) "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+}
+- `dev`: starts the Vite dev server (hot reload, fast refresh).
+- `build`: produces production build assets.
+- `preview`: serves the production build locally for testing.
+
+--- Dependencies / DevDependencies ---
+6) "dependencies": { /* react, react-dom, react-router-dom, axios, tailwind, etc. */ }
+- Lists runtime packages required by the app (React, router, axios, state libs, UI libs).
+
+7) "devDependencies": { /* vite, eslint, tailwindcss, postcss, autoprefixer, etc. */ }
+- Lists development-only tools such as the bundler (Vite) and CSS tooling.
+
+8) }
+- End of JSON object.
+
+--- Beginner summary ---
+- `frontend/package.json` describes how to run the frontend (`npm run dev`) and which packages are needed. `vite` powers the dev experience and build tooling.
+
+End of package.json doc.

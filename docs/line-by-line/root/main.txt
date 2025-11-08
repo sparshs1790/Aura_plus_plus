@@ -1,0 +1,53 @@
+main.jsx — Line-by-line, token-level explanation (for absolute beginners)
+
+File: frontend/src/main.jsx
+Goal: Explain the app bootstrap: how React is mounted, how the router and Redux Provider are wired, and how global CSS and toasts are initialized.
+
+--- Top imports ---
+1) import React from 'react'
+- Import React so JSX and React APIs are available.
+
+2) import ReactDOM from 'react-dom/client'
+- ReactDOM's modern client API which provides `createRoot` to mount the app into the DOM.
+
+3) import { Provider } from 'react-redux'
+- `Provider` makes the Redux store available to all nested components via React context.
+
+4) import { BrowserRouter } from 'react-router-dom'
+- `BrowserRouter` enables client-side routing using the HTML5 history API.
+
+5) import App from './App'
+- The root App component which contains routes and layout.
+
+6) import store from './redux/store'
+- The configured Redux store (see `store.js`) passed into the `Provider`.
+
+7) import './index.css'
+- Global CSS entry (Tailwind or base styles) that applies across the app.
+
+8) import NotificationToast from './components/NotificationToast'
+- The toast container component which must be mounted once so any `toast` calls show messages.
+
+--- Bootstrapping ---
+9) const root = ReactDOM.createRoot(document.getElementById('root'))
+- Find the DOM node with id `root` (in `index.html`) and create a React root that controls it.
+
+10) root.render(
+    <React.StrictMode>
+        <Provider store={store}>
+            <BrowserRouter>
+                <App />
+                <NotificationToast />
+            </BrowserRouter>
+        </Provider>
+    </React.StrictMode>
+)
+- Render the app wrapped with `StrictMode` (helps find potential problems), `Provider` (Redux), and `BrowserRouter` (routing).
+- `App` is the main component; `NotificationToast` is mounted alongside so toasts work anywhere.
+
+11) End of file — the app is now mounted and running in the browser when the page loads.
+
+--- Beginner summary ---
+- `main.jsx` wires global providers (Redux/Router), mounts the React tree into the DOM, and includes global styles and a toast container.
+
+End of main.jsx doc.

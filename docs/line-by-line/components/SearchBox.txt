@@ -1,0 +1,58 @@
+SearchBox.jsx — Line-by-line, token-level explanation (for absolute beginners)
+
+File: frontend/src/components/SearchBox.jsx
+Goal: Explain how the search input captures text and optionally shows results or suggestions.
+
+--- Top imports ---
+1) import React, { useState } from 'react'
+- Import React and the `useState` hook for local input state.
+
+2) import { Input } from './ui/input'
+- Input primitive for consistent styling.
+
+3) import axios from 'axios'
+- HTTP client used to query the backend for search results.
+
+--- Component ---
+4) const SearchBox = () => {
+- Define SearchBox component.
+
+5) const [q, setQ] = useState('')
+- Local state for the current search query string.
+
+6) const [results, setResults] = useState([])
+- Local state for holding search results returned from the server.
+
+7) const url = import.meta.env.VITE_URL || 'http://localhost:5000'
+- Backend base URL.
+
+8) const handleSearch = async (value) => {
+    setQ(value)
+    if (!value) { setResults([]); return }
+    try {
+        const res = await axios.get(`${url}/api/v1/search?q=${encodeURIComponent(value)}`, { withCredentials: true })
+        if (res.data.success) setResults(res.data.results)
+    } catch (error) { console.error(error) }
+}
+- Update the query state; if non-empty, call backend search endpoint and store results.
+
+--- JSX ---
+9) return (
+    <div className='w-full max-w-md'>
+        <Input value={q} onChange={e => handleSearch(e.target.value)} placeholder='Search' />
+        {results.length > 0 && (
+            <ul className='mt-2 bg-white rounded-md shadow'>
+                {results.map(r => (<li key={r._id} className='p-2 hover:bg-gray-100'>{r.username || r.title}</li>))}
+            </ul>
+        )}
+    </div>
+)
+- Render an input bound to `q` and a dropdown list of results when present.
+
+10) export default SearchBox
+- Export the component.
+
+--- Beginner summary ---
+- SearchBox keeps the typed text in state and queries the server for matching items. Results are shown below the input when present.
+
+End of SearchBox line-by-line doc.

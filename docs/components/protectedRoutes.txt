@@ -1,0 +1,27 @@
+ProtectedRoutes.jsx — Beginner-friendly guide
+
+File path: frontend/src/components/ProtectedRoutes.jsx
+Purpose: Ensures only logged-in users can access certain pages (like Feed, Messages, Profile editing). If a user is not logged in, it redirects them to the Login page.
+
+What a non-coder sees
+- If you're not logged in and try to visit a protected page, the app sends you to the Login screen.
+- If you are logged in, you see the page normally.
+
+Simple step-by-step
+1) The app checks if there is an authenticated user (usually in Redux or a cookie).
+2) If a user exists, the ProtectedRoutes component renders the requested page.
+3) If not, it redirects to `/login`.
+
+Why protected routes are needed
+- Some pages should only be visible to registered users (messages, posting, editing). This prevents unauthorized access.
+
+Testing steps for non-coders
+1. Log out and try to visit `/messages` — you should be redirected to `/login`.
+2. Log in, then visit `/messages` — now you should be able to access it.
+
+Developer notes
+- Use `useSelector` to check `store.auth.user` or similar.
+- Protect routes on the server too — the client check is UX level, server must enforce permissions.
+
+Next reading
+- `docs/components/login.txt` and `docs/components/signup.txt` to see how users become authenticated.

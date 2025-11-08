@@ -1,0 +1,29 @@
+NotificationToast.jsx — Line-by-line, token-level explanation (for absolute beginners)
+
+File: frontend/src/components/NotificationToast.jsx
+Goal: Explain how small notification toasts are shown to the user when actions occur.
+
+--- Top imports ---
+1) import React from 'react'
+- Import React for JSX.
+
+2) import { Toaster, toast } from 'sonner'
+- `sonner` provides `Toaster` (the UI container) and `toast` (the API to show messages).
+
+--- Component ---
+3) const NotificationToast = () => {
+- Define NotificationToast component.
+
+4) return <Toaster position='top-right' richColors />
+- Render the `Toaster` container where toasts appear. `position='top-right'` places them in the top-right corner. `richColors` enables colored toasts.
+
+5) export default NotificationToast
+- Export the component.
+
+--- Usage note ---
+- To trigger a toast elsewhere in the app: import { toast } from 'sonner' and call `toast.success('Saved')` or `toast.error('Failed')`.
+
+--- Beginner summary ---
+- This file mounts the toast container. Actual notifications are triggered from other parts of the app calling the `toast` API.
+
+End of NotificationToast line-by-line doc.

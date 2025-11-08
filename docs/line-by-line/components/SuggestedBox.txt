@@ -1,0 +1,56 @@
+SuggestedBox.jsx — Line-by-line, token-level explanation (for absolute beginners)
+
+File: frontend/src/components/SuggestedBox.jsx
+Goal: Explain how the SuggestedBox shows a small list of users you might want to follow and how it integrates with avatars and buttons.
+
+--- Top imports ---
+1) import React, { useEffect, useState } from 'react'
+- Import React and hooks; `useEffect` for fetching data, `useState` for local state.
+
+2) import axios from 'axios'
+- HTTP client used to fetch suggested users from the backend.
+
+3) import SuggestedUsers from './SuggestedUsers'
+- Child component that receives an array of suggested users and renders them.
+
+4) import { useSelector } from 'react-redux'
+- Read authentication or other app state if needed.
+
+--- Component ---
+5) const SuggestedBox = () => {
+- Define SuggestedBox functional component.
+
+6) const [suggested, setSuggested] = useState([])
+- Local state array to hold suggested user objects.
+
+7) const url = import.meta.env.VITE_URL || 'http://localhost:5000'
+- Backend base URL.
+
+--- data fetching ---
+8) useEffect(() => {
+    const fetchSuggested = async () => {
+        try {
+            const res = await axios.get(`${url}/api/v1/user/suggested`, { withCredentials: true })
+            if (res.data.success) setSuggested(res.data.users)
+        } catch (error) { console.error(error) }
+    }
+    fetchSuggested()
+}, [])
+- On mount, call server endpoint to get suggested users and store them.
+
+--- JSX ---
+9) return (
+    <div className='p-3 rounded-md bg-white shadow'>
+        <h4 className='text-sm font-semibold mb-2'>Suggested for you</h4>
+        <SuggestedUsers users={suggested} />
+    </div>
+)
+- Render a titled card and pass the fetched users into `SuggestedUsers` for display.
+
+10) export default SuggestedBox
+- Export the component.
+
+--- Beginner summary ---
+- SuggestedBox fetches a list of users from the server on load and hands them to `SuggestedUsers` to render. It keeps network code inside useEffect and keeps presentation in the child component.
+
+End of SuggestedBox line-by-line doc.

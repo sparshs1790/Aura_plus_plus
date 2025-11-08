@@ -1,0 +1,36 @@
+store.js — Line-by-line, token-level explanation (for absolute beginners)
+
+File: frontend/src/redux/store.js
+Goal: Explain how the Redux store is configured and which slices are combined.
+
+--- Top imports ---
+1) import { configureStore } from '@reduxjs/toolkit'
+- `configureStore` is the recommended way to create a Redux store in Redux Toolkit. It sets up middleware and devtools automatically.
+
+2) import authReducer from './authSlice'
+3) import chatReducer from './chatSlice'
+4) import postReducer from './postSlice'
+5) import rtnReducer from './rtnSlice'
+6) import socketReducer from './socketSlice'
+- Import reducers (the default exports from each slice file) so they can be combined into the store.
+
+--- Store creation ---
+7) const store = configureStore({
+    reducer: {
+        auth: authReducer,
+        chat: chatReducer,
+                post: postReducer,
+        rtn: rtnReducer,
+        socket: socketReducer
+    }
+})
+- `configureStore` accepts an object with a `reducer` field. Each key becomes a top-level slice in the Redux state.
+- After this, `state.auth` holds the auth slice, `state.chat` holds chat data, etc.
+
+8) export default store
+- Export the configured store so the app can pass it to the `<Provider>` at the root and components can use `useSelector` and `useDispatch`.
+
+--- Beginner summary ---
+- `store.js` wires together the various slices into a single Redux store. Components use this store via React-Redux's `<Provider>` to access and update global state.
+
+End of store doc.

@@ -1,0 +1,162 @@
+EditProfile.jsx — Line-by-line, token-level explanation (for absolute beginners)
+
+File: frontend/src/components/EditProfile.jsx
+Goal: Explain each code line and the punctuation (commas, braces, parentheses) in plain, child-friendly language.
+
+--- Top imports ---
+1) import React, { useRef, useState } from 'react'
+- import: bring things from another file.
+- React: the main library object.
+- , (comma): separates React from the list inside braces.
+- { useRef, useState }: take two helpers from React:
+  - useRef: small box to store a value that survives re-renders (useful for file inputs).
+  - useState: hook that gives the component local memory (state).
+- from 'react': where to get these things.
+
+2) import { useDispatch, useSelector } from 'react-redux'
+- useDispatch sends actions; useSelector reads global state.
+
+3) import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
+- Components to show profile images.
+
+4) import { Button } from './ui/button';
+- Styled button.
+
+5) import { Textarea } from './ui/textarea';
+- Multi-line text input for bio.
+
+6) import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from './ui/select';
+- A set of components to render a dropdown selector for gender.
+
+7) import axios from 'axios';
+- HTTP client.
+
+8) import { Loader2 } from 'lucide-react';
+- Small spinner icon.
+
+9) import { useNavigate } from 'react-router-dom';
+- useNavigate gives a function to change page (navigate) programmatically.
+
+10) import { toast } from 'sonner';
+- Notification helper.
+
+11) import { setAuthUser } from '@/redux/authSlice';
+- An action to update the global user object in Redux.
+
+--- Component ---
+12) const EditProfile = () => {
+- Define a function component named EditProfile. No props expected.
+- () empty parentheses means no arguments.
+
+13) const imageRef = useRef();
+- A ref for the hidden file input.
+
+14) const { user } = useSelector(store => store.auth);
+- Read current authenticated user from Redux.
+- { user } destructures the user property from the auth slice.
+
+15) const [loading, setLoading] = useState(false);
+- Local loading state.
+
+16) const url = import.meta.env.VITE_URL || 'http://localhost:5000';
+- Base backend URL with fallback to local host.
+- || is logical OR; if the left is falsey, use the right.
+
+17) const [input, setInput] = useState({ profilePhoto: user?.profilePicture, bio: user?.bio, gender: user?.gender, isProfilePhotoPublic: user?.isProfilePhotoPublic ?? true, isPrivate: user?.isPrivate ?? false, });
+- useState with an object initial value storing form inputs.
+- property: value pairs separated by commas inside { }.
+- user?.profilePicture uses optional chaining: if user exists, use profilePicture; otherwise undefined.
+- ?? is the nullish coalescing operator: use the value on the right only when left is null or undefined (not for empty strings). Here it provides defaults for booleans.
+
+18) const navigate = useNavigate();
+- navigate is a function to change routes.
+
+19) const dispatch = useDispatch();
+- dispatch is the Redux dispatcher.
+
+--- Handlers ---
+20) const fileChangeHandler = (e) => { const file = e.target.files?.[0]; if (file) setInput({ ...input, profilePhoto: file }); }
+- Reads first selected file from the event.
+- ...input is the spread operator: it copies existing fields from input into a new object.
+- setInput({ ...input, profilePhoto: file }) creates a new object with existing data but replaces profilePhoto with the File.
+
+21) const selectChangeHandler = (value) => { setInput({ ...input, gender: value }); }
+- Update gender field when select changes.
+
+22) const handleProfilePhotoVisibility = (e) => { setInput({ ...input, isProfilePhotoPublic: e.target.value === "public" }); }
+- Update whether profile photo is public depending on a radio input's value.
+- e.target.value is the value string of the clicked radio.
+- === tests strict equality; result is true/false.
+
+23) const editProfileHandler = async () => { ... }
+- Main submit handler to send form to server.
+
+Inside editProfileHandler (explained step-by-step):
+24) const formData = new FormData();
+- FormData bundles fields and files for upload.
+
+25) formData.append("bio", input.bio);
+- Append the bio text under key "bio".
+- Double quotes are string delimiters.
+
+26) formData.append("gender", input.gender);
+27) formData.append("isProfilePhotoPublic", input.isProfilePhotoPublic);
+28) formData.append("isPrivate", String(input.isPrivate));
+- Append boolean as string because form data stores strings.
+
+29) if (input.profilePhoto instanceof File) { formData.append("profilePhoto", input.profilePhoto); }
+- Only append the file if profilePhoto is a File object.
+- instanceof checks if object is an instance of File.
+
+30) try { setLoading(true); const res = await axios.post(`${url}/api/v1/user/profile/edit`, formData, { headers: { 'Content-Type': 'multipart/form-data' }, withCredentials: true }); if (res.data.success) { const updatedUserData = { ...user, bio: res.data.user?.bio, profilePicture: res.data.user?.profilePicture, gender: res.data.user.gender, isProfilePhotoPublic: res.data.user.isProfilePhotoPublic }; dispatch(setAuthUser(updatedUserData)); navigate(`/profile/${user?._id}`); toast.success(res.data.message); } } catch (error) { console.log(error); const msg = error?.response?.data?.message || 'Failed to update profile'; toast.error(msg); } finally { setLoading(false); }
+- The try block sends the POST request and handles the response.
+- Template literal `${url}/api/v1/user/profile/edit` inserts url into the string.
+- res.data.success: server's success flag.
+- updatedUserData uses spread ...user to copy existing user properties then overwrite some fields.
+- dispatch(setAuthUser(...)) updates the global auth user in Redux.
+- navigate(`/profile/${user?._id}`) sends the user to their profile page after update.
+- In catch we log and show a friendly error message; `error?.response?.data?.message` uses optional chaining to safely access nested properties.
+- finally always runs and sets loading to false.
+
+--- Return / JSX ---
+31) return (
+    <div className='flex max-w-2xl mx-auto pl-10'>
+- Return the UI: a container with Tailwind classes.
+
+Inside the JSX we have several sections. I'll explain some representative lines including punctuation:
+
+32) <input ref={imageRef} onChange={fileChangeHandler} type='file' className='hidden' />
+- <input /> is a self-closing HTML-like tag in JSX.
+- ref={imageRef} assigns the ref; curly braces indicate a JavaScript expression (imageRef variable).
+- onChange={fileChangeHandler} passes the function reference (no parentheses) so it runs on change.
+- type='file' is a string attribute.
+- className='hidden' is how we add CSS classes in JSX (className instead of class).
+
+33) <Button onClick={() => imageRef?.current.click()} className='bg-[#0095F6] h-8 hover:bg-[#318bc7]'>Change photo</Button>
+- onClick receives an arrow function, which when called executes imageRef?.current.click() to simulate a click on hidden input.
+- imageRef?.current uses optional chaining to avoid error if imageRef is null.
+
+34) <Textarea value={input.bio} onChange={(e) => setInput({ ...input, bio: e.target.value })} name='bio' className="focus-visible:ring-transparent" />
+- value uses state to control textarea. onChange updates state copying other fields.
+- e.target.value extracts the input string from event e.
+
+35) <Select defaultValue={input.gender} onValueChange={selectChangeHandler}> ... </Select>
+- Select is a custom dropdown. defaultValue sets initial selection.
+- onValueChange receives a function value => selectChangeHandler(value) — it's passed internally by the Select component when user changes choice.
+
+36) <input type="checkbox" checked={input.isPrivate} onChange={(e) => setInput({ ...input, isPrivate: e.target.checked })} />
+- checked is a boolean attribute on checkbox inputs that sets whether it's ticked.
+- e.target.checked is true/false depending on user action.
+
+37) { loading ? ( <Button> <Loader2 .../> Please wait </Button> ) : ( <Button onClick={editProfileHandler}>Submit</Button> ) }
+- Ternary operator ? : chooses between the loading button and submit button.
+- Parentheses group JSX blocks for readability.
+
+38) export default EditProfile
+- Make the component available to import elsewhere.
+
+--- Beginner summary ---
+- EditProfile shows a simple form to change name, bio, photo, and privacy settings.
+- It gathers values, sends them to the server as multipart/form-data, and updates global user state on success.
+
+End of EditProfile line-by-line doc.

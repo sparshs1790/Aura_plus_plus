@@ -1,0 +1,73 @@
+Login.jsx — Line-by-line, token-level explanation (for absolute beginners)
+
+File: frontend/src/components/Login.jsx
+Goal: Explain each line and punctuation so a beginner can follow how the login form works, how it sends credentials, and how it handles success/failure.
+
+--- Top imports ---
+1) import React, { useState } from 'react'
+- Import React and the `useState` hook for local component state.
+
+2) import { Input } from './ui/input'
+- Input UI primitive used for email/password fields.
+
+3) import { Button } from './ui/button'
+- Button UI primitive for the submit button.
+
+4) import axios from 'axios'
+- HTTP client for sending the login request to the backend.
+
+5) import { useNavigate } from 'react-router-dom'
+- Hook to programmatically navigate after successful login.
+
+6) import { useDispatch } from 'react-redux'
+- Hook to dispatch Redux actions (e.g., setAuthUser).
+
+--- Component ---
+7) const Login = () => {
+- Define the Login component as a function.
+
+8) const [email, setEmail] = useState('')
+- Local state for the email input.
+
+9) const [password, setPassword] = useState('')
+- Local state for the password input.
+
+10) const navigate = useNavigate()
+- Initialize navigate to redirect the user after login.
+
+11) const dispatch = useDispatch()
+- Initialize dispatch to update Redux store on success.
+
+12) const url = import.meta.env.VITE_URL || 'http://localhost:5000'
+- Base URL for backend API; fall back to localhost if env var missing.
+
+--- submit handler ---
+13) const handleSubmit = async (e) => {
+    e.preventDefault()
+    try {
+        const res = await axios.post(`${url}/api/v1/user/login`, { email, password }, { withCredentials: true })
+        if (res.data.success) { dispatch({ type: 'auth/setAuthUser', payload: res.data.user }); navigate('/') }
+    } catch (error) { console.error(error) }
+}
+- Prevent default form submit, post credentials, and on success dispatch user to Redux and navigate to home.
+
+--- JSX ---
+14) return (
+    <div className='max-w-md mx-auto mt-12 p-6 bg-white rounded-md shadow'>
+        <h2 className='text-xl font-semibold mb-4'>Login</h2>
+        <form onSubmit={handleSubmit} className='space-y-3'>
+            <Input value={email} onChange={e => setEmail(e.target.value)} placeholder='Email' />
+            <Input type='password' value={password} onChange={e => setPassword(e.target.value)} placeholder='Password' />
+            <Button type='submit'>Sign in</Button>
+        </form>
+    </div>
+)
+- Render a simple form with controlled inputs and a submit button.
+
+15) export default Login
+- Export the component for use elsewhere.
+
+--- Beginner summary ---
+- `Login.jsx` shows a form, captures email/password, sends them to the server, and updates app state on success.
+
+End of Login line-by-line doc.

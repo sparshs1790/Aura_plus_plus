@@ -1,0 +1,54 @@
+Comment.jsx — Beginner-friendly explanation
+
+File path: frontend/src/components/Comment.jsx
+Purpose: Renders a single comment with author info, timestamp and inline actions (like/reply). Used inside `CommentDialog` and inside post comment lists.
+
+High-level overview
+- Small presentational component that accepts a `comment` object and optionally the `postId` or handlers for interactions.
+- Keeps UI focused: avatar, name, text, time; optional reply or like buttons.
+
+Common props shape (from backend)
+- comment = {
+    _id: String,
+    text: String,
+    postedBy: { _id, name, avatar },
+    createdAt: Date,
+    likes: [userId],
+  }
+
+--- Imports ---
+import React from 'react'
+import { Avatar } from './ui/avatar'
+import { formatDistanceToNow } from 'date-fns'
+- `date-fns` helps show "2 hours ago" style timestamps.
+
+--- Component signature ---
+const Comment = ({ comment }) => {
+- Pure component. No local state in most simple cases.
+
+--- JSX explained ---
+<div className='flex items-start gap-3'>
+- Layout: avatar on left, content on right.
+
+<Avatar src={comment.postedBy.avatar} alt={comment.postedBy.name} />
+- Small avatar uses image url; Avatar components usually handle fallback if image missing.
+
+<div>
+  <div className='text-sm font-medium'>
+    <Link to={`/profile/${comment.postedBy._id}`}>{comment.postedBy.name}</Link>
+    <span className='text-gray-500 text-xs ml-2'>{formatDistanceToNow(new Date(comment.createdAt))} ago</span>
+  </div>
+  <p className='text-sm'>{comment.text}</p>
+</div>
+
+--- Notes ---
+- Keep this component dumb: handle user interactions (reply, like) in the parent so state stays centralized.
+- If you add optimistic UI for likes, handle rollbacks on error.
+
+--- Testing ---
+- Create a mock comment object and render the component.
+- Confirm avatar, name link, relative time and text appear as expected.
+
+--- Accessibility ---
+- Ensure link to profile has an accessible name; use alt text on avatar images.
+- If adding buttons, use button elements with aria-labels for screen readers.

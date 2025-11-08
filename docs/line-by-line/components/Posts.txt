@@ -1,0 +1,50 @@
+Posts.jsx — Line-by-line, word-by-word explanation (for beginners)
+
+File: frontend/src/components/Posts.jsx
+Goal: Explain every line so a new learner can understand how the app shows a list of posts.
+
+```jsx
+import React from 'react'
+import Post from './Post'
+import { useSelector } from 'react-redux'
+```
+- import React: brings the React library.
+- import Post: brings the Post component file we explained earlier.
+- useSelector: a hook to read data from the app's global store (Redux).
+
+```jsx
+const Posts = () => {
+  const {posts} = useSelector(store=>store.post);
+  return (
+    <div>
+        {
+            posts.map((post) => <Post key={post._id} post={post}/>)
+        }
+    </div>
+  )
+}
+
+export default Posts
+```
+
+Line-by-line explanation
+- const Posts = () => { ... }
+  - Defines the Posts component as a function that returns UI.
+
+- const {posts} = useSelector(store=>store.post);
+  - Reads the 'posts' array from the Redux store under 'store.post'.
+  - This array contains all posts the app knows about.
+
+- return (<div> { posts.map(...) } </div>)
+  - We create a container <div>.
+  - Inside the div we run posts.map(...) which goes through each post in the array and turns it into a <Post /> component.
+  - key={post._id} is required by React so it can track each list item; use a unique id like post._id.
+  - post={post} passes the full post object to the Post component as a prop named 'post'.
+
+- export default Posts
+  - Makes Posts available for the rest of the app.
+
+Child-friendly summary
+- Think of Posts as a photo album page: it gets all photos (posts) from the app memory and shows each one using the Post card we explained earlier.
+
+End of Posts.jsx explanation.

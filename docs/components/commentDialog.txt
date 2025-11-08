@@ -1,0 +1,345 @@
+CommentDialog.jsx — line-by-line explanation for beginners
+
+File path: frontend/src/components/CommentDialog.jsx
+Goal: Show comments for a selected post in a dialog/modal, allow adding comments, deleting posts (if allowed), and navigate between posts with left/right arrows and keyboard arrows. It also uses animations (framer-motion) for a pleasant UX.
+
+This document explains each block of the file and what it does. If you are new to React, read the "Quick primer" below first.
+
+Quick primer (very short)
+- React component: a function that returns JSX (looks like HTML). Props are inputs passed into the component.
+- JSX: HTML-like syntax inside JavaScript. Browsers don't understand JSX directly; a build tool converts it to JS.
+- Hooks: special functions from React (like useState, useEffect) that let components keep state and run side effects.
+- Redux: a global state store. useSelector reads state, useDispatch sends actions to update state.
+- Framer Motion: a library for animations. motion.div is an animated div.
+- Radix / Dialog: a reusable dialog/modal component (wrapped here by `Dialog`, `DialogContent`, etc.).
+- Axios: HTTP client used to call backend APIs.
+
+-------------------------
+Top of file: Imports
+-------------------------
+import React, { useEffect, useMemo, useState } from 'react'
+- Imports React and three hooks:
+  - useState: to store local state (like the comment text input).
+  - useEffect: to run code when certain values change (side effects like syncing comments when a post changes).
+  - useMemo: to memoize a derived value so it doesn't get recomputed on every render.
+
+import { Dialog, DialogContent, DialogTrigger, DialogTitle, DialogDescription } from './ui/dialog'
+- Imports building blocks for the dialog/modal from a local UI helper file. These wrap Radix primitives.
+
+import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar'
+- Small components to render user avatars safely.
+
+import { Link } from 'react-router-dom'
+- Link lets you navigate between routes in the app without reloading the page.
+
+import { MoreHorizontal, ChevronLeft, ChevronRight } from 'lucide-react'
+- Small icon components used in the UI (more/options and arrows).
+
+import { Button } from './ui/button'
+- A styled button component used across the app.
+
+import { useDispatch, useSelector } from 'react-redux'
+- Hooks to interact with the Redux store:
+  - useSelector reads values from the store.
+  - useDispatch sends actions to change the store.
+
+import Comment from './Comment'
+- The Comment component renders a single comment entry. We'll map over comments and render this component for each.
+
+import axios from 'axios'
+- Library to make HTTP requests (to post a comment or delete a post).
+
+import { toast } from 'sonner'
+- Small toast/notification library to show success/error messages to the user.
+
+import { setPosts, setSelectedPost } from '@/redux/postSlice'
+- Two Redux action creators from the post slice:
+  - setPosts: updates the list of posts in the global store.
+  - setSelectedPost: sets the currently selected post (used by this dialog to know what to show).
+
+import { motion, AnimatePresence } from "framer-motion";
+- Framer Motion exports for animating elements: motion.* components and AnimatePresence to animate mount/unmount.
+
+-------------------------
+Component signature and initial state
+-------------------------
+const CommentDialog = ({ open, setOpen, scopePosts }) => {
+- This defines the CommentDialog component as a function.
+- Props:
+  - open (boolean): whether the dialog is visible.
+  - setOpen (function): callback to change the open state.
+  - scopePosts (optional array): a list of posts to navigate inside (used when opening from a user's profile or saved posts).
+
+Inside the component we set up local state and access global state:
+
+  const [text, setText] = useState("");
+  - text: the current value of the "Add a comment..." input.
+
+  const { selectedPost, posts } = useSelector(store => store.post);
+  - Reads `selectedPost` and `posts` from the Redux store's `post` slice.
+  - `selectedPost` is the post whose comments are currently shown.
+  - `posts` is the global list of posts (feed).
+
+  const [comment, setComment] = useState([]);
+  - comment (array): local copy of the comments for the current selected post. Kept in state so we can add comments locally before a round-trip updates the store.
+
+  const [direction, setDirection] = useState(0); // -1 left, +1 right for slide transitions
+  - direction is used by framer-motion to animate image sliding direction when you navigate left or right.
+
+  const { user } = useSelector(store => store.auth);
+  - Reads the currently logged in user from the auth slice. Used to check if the user can delete a post.
+
+  const dispatch = useDispatch();
+  - dispatch function to send Redux actions.
+
+  const url = import.meta.env.VITE_URL || 'http://localhost:5000';
+  - Backend base URL. When building with Vite, environment variables prefixed with VITE_ can be used via import.meta.env.
+  - If VITE_URL is not set, the code falls back to http://localhost:5000.
+
+-------------------------
+Prepare the scoped navigation list
+-------------------------
+The dialog supports navigating inside a subset of posts (for example, only the posts of the current profile). To support that we normalize whatever `scopePosts` is and build `navPosts`:
+
+  const rawNav = Array.isArray(scopePosts) ? scopePosts : posts;
+  - If `scopePosts` is passed (array), use it; otherwise use the global `posts` array.
+
+  const navPosts = useMemo(() => (
+    rawNav
+      .map(item => {
+        if (!item) return null;
+        if (typeof item === 'object' && item._id) return item;
+        if (typeof item === 'string') {
+          const match = posts.find(p => String(p._id) === String(item));
+          return match || null;
+        }
+        return null;
+      })
+      .filter(Boolean)
+  ), [rawNav, posts]);
+
+Explanation:
+- scopePosts can be an array of post objects or an array of post IDs (strings) — for example, saved/bookmarked posts could be stored as IDs.
+- We map over rawNav and for each item:
+  - If it's already a post object (has _id), return it.
+  - If it's a string, try to find the full post in the global `posts` array.
+  - Otherwise return null.
+- We filter out any null entries.
+- useMemo stops this computation from running on every render unless `rawNav` or `posts` changes; this is a small optimization.
+
+-------------------------
+Track the current index
+-------------------------
+  const [currentIndex, setCurrentIndex] = useState(-1);
+
+  useEffect(() => {
+    if (!selectedPost || !navPosts.length) {
+      setCurrentIndex(-1);
+      return;
+    }
+    const idx = navPosts.findIndex(item => String(item._id) === String(selectedPost._id));
+    setCurrentIndex(idx);
+  }, [selectedPost, navPosts]);
+
+Explanation:
+- currentIndex stores the index of the selected post inside `navPosts`.
+- We set it whenever `selectedPost` or `navPosts` changes.
+- If the selected post isn't found in the scoped list, currentIndex becomes -1.
+
+  const canNavigate = navPosts.length > 1 && currentIndex !== -1;
+- canNavigate is true when there are at least 2 posts to navigate between and the selected post is in the list.
+
+-------------------------
+Navigation handler (left / right)
+-------------------------
+  const goToAdjacentPost = (direction) => {
+    const len = navPosts?.length || 0;
+    if (len < 2 || currentIndex === -1) return;
+    const delta = direction === 'left' ? -1 : 1;
+    setDirection(delta);
+    const newIdx = (currentIndex + delta + len) % len; // wrap-around
+    const newPost = navPosts[newIdx];
+    dispatch(setSelectedPost(newPost));
+    setComment(newPost.comments || []);
+    setCurrentIndex(newIdx);
+  }
+
+Explanation:
+- direction param is 'left' or 'right'. We convert it to delta = -1 or +1.
+- newIdx uses modular arithmetic to wrap around the list: if you go left from index 0 you land on the last item.
+- We dispatch setSelectedPost so the redux state updates and any other UI using selectedPost is updated.
+- We also update the local comment state so the dialog shows new comments right away.
+
+-------------------------
+Sync comments when selectedPost changes
+-------------------------
+  useEffect(() => {
+    if (selectedPost) {
+      setComment(selectedPost.comments);
+    }
+  }, [selectedPost]);
+
+Explanation:
+- Keeps the local `comment` array in sync with the Redux `selectedPost` whenever it changes.
+
+-------------------------
+Keyboard navigation
+-------------------------
+The dialog listens for left/right arrow keys to navigate:
+
+  useEffect(() => {
+    if (!open) return;
+
+    const keyHandler = (e) => {
+      if (e.ctrlKey || e.metaKey || e.altKey) return; // ignore modifier combos
+
+      const active = document.activeElement;
+      const tag = active?.tagName;
+      if (tag === 'INPUT' || tag === 'TEXTAREA' || active?.isContentEditable) return; // don't intercept typing
+
+      if (e.key === 'ArrowLeft') {
+        e.preventDefault();
+        goToAdjacentPost('left');
+      } else if (e.key === 'ArrowRight') {
+        e.preventDefault();
+        goToAdjacentPost('right');
+      }
+    };
+
+    window.addEventListener('keydown', keyHandler);
+    return () => window.removeEventListener('keydown', keyHandler);
+  }, [open, currentIndex, navPosts.length]);
+
+Explanation:
+- Only registers the listener while the dialog `open` is true.
+- Avoids interfering when the user is typing a comment.
+- Cleanup removes the listener when dialog closes or dependencies change.
+
+-------------------------
+Input handling (Add comment)
+-------------------------
+  const changeEventHandler = (e) => {
+    const inputText = e.target.value;
+    if (inputText.trim()) {
+      setText(inputText);
+    } else {
+      setText("");
+    }
+  }
+
+Explanation:
+- Keeps the input controlled and prevents storing whitespace-only strings.
+
+  const sendMessageHandler = async () => {
+    try {
+      const res = await axios.post(`${url}/api/v1/post/${selectedPost?._id}/comment`, { text }, { headers: { 'Content-Type': 'application/json' }, withCredentials: true });
+
+      if (res.data.success) {
+        const updatedCommentData = [...comment, res.data.comment];
+        setComment(updatedCommentData);
+        const updatedPostData = posts.map(p => p._id === selectedPost._id ? { ...p, comments: updatedCommentData } : p );
+        dispatch(setPosts(updatedPostData));
+        toast.success(res.data.message);
+        setText("");
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+Explanation:
+- Makes a POST request to add a comment. `withCredentials: true` sends cookies for authentication if necessary.
+- On success:
+  - Appends the new comment to local `comment` state.
+  - Updates the global `posts` array in the Redux store by replacing the comments of the matching post.
+  - Shows a toast message and clears the input.
+- Errors are just logged (you could show a toast error for better UX).
+
+-------------------------
+Delete post handler
+-------------------------
+  const deletePostHandler = async () => {
+    try {
+      const res = await axios.delete(`${url}/api/v1/post/delete/${selectedPost?._id}`, { withCredentials: true });
+      if (res.data.success) {
+        const updatedPostData = posts.filter((postItem) => postItem?._id !== selectedPost?._id);
+        dispatch(setPosts(updatedPostData));
+        toast.success(res.data.message);
+      }
+    } catch (error) {
+      console.log(error);
+      toast.error(error.response?.data?.message || "Something went wrong");
+    }
+  };
+
+Explanation:
+- Sends DELETE request to remove the post. On success removes it from global list and shows a success toast.
+- Only rendered in the UI for authorized users (owner or special admin id).
+
+-------------------------
+Render (JSX) overview
+-------------------------
+The component uses a Dialog wrapper and inside uses AnimatePresence and motion.div for animations.
+
+High-level structure:
+- <Dialog open={open} onOpenChange={setOpen}>
+  - <AnimatePresence> // helps animate mounting/unmounting
+    - {open && (
+      - <DialogContent> // Radix dialog wrapper providing overlay & close button
+        - <motion.div> // small animation for dialog entrance
+          - Title and description (sr-only for accessibility)
+          - Main layout: two-column flex
+            - Left: image area (AnimatePresence + motion.img handles slide animation when selectedPost changes)
+            - Right: details panel
+              - header with avatar & options
+              - comments list (staggered animation)
+              - input for adding comment
+
+Important bits in JSX:
+- Accessibility: DialogTitle and DialogDescription have sr-only so screen readers can read them.
+- Navigation buttons are disabled when there is not enough items to navigate.
+- motion.img uses the `direction` value to decide which way to slide in/out.
+
+-------------------------
+Accessibility notes
+-------------------------
+- The dialog uses Radix primitives which provide keyboard focus management and basic accessible behavior.
+- Input is a real HTML input which screen readers can focus.
+- Buttons have aria-label attributes for the arrow buttons.
+- Consider adding `aria-live` to the comments container if you want screen readers to announce new comments.
+
+-------------------------
+How to test locally
+-------------------------
+1. Start your backend (ensure MONGO_URL is set).  
+2. Start the frontend (vite) with `npm run dev` inside `frontend/`.
+3. Open the app in browser, log in if necessary, go to feed or a user's profile.
+4. Click the image or the comments icon on any post — dialog should open.
+5. Press left/right arrow keys or click the on-screen arrow buttons to navigate posts in the current scope.
+6. Add a comment to verify network flow and UI update.
+7. If you see errors, check browser console and backend logs.
+
+-------------------------
+Common confusion points (FAQ)
+-------------------------
+Q: Why do we have both `posts` from Redux and `scopePosts` prop?
+A: The component supports two modes. If you open the dialog from the feed, use the global `posts`. If you open from a profile, we pass only that user's posts via `scopePosts` so navigation stays within that user's posts.
+
+Q: Why use local `comment` state instead of reading from `selectedPost.comments` directly?
+A: Local state lets the dialog update comments instantly after a user adds one, before other parts of the app might refresh. It also isolates the dialog's UI from global updates until the store is updated.
+
+Q: What is `AnimatePresence` for?
+A: It helps animate components as they enter and leave the tree (mount/unmount). This makes transitions smooth when the dialog opens or when the image changes.
+
+-------------------------
+Next steps (how I can expand this doc)
+- Create the same detailed file for `Post.jsx`, `Profile.jsx`, and `Comment.jsx` so a beginner can read all the interactions.
+- Add a visual diagram showing state flows (Redux store -> selectedPost -> dialog -> updates back to store).
+- Provide small runnable examples for each concept (a minimal dialog, a minimal Redux slice) so absolute beginners can try them.
+
+If you want, I can now:
+- Add `docs/components/post.txt` and `profile.txt` similarly.
+- Expand this file to include annotated code snippets (inline with code lines).
+- Convert this `.txt` into a prettier Markdown file with headings and links.
+
+Tell me which next doc to generate or whether you want more detail in any section above.

@@ -1,0 +1,33 @@
+rtnSlice.js — Line-by-line, token-level explanation (for absolute beginners)
+
+File: frontend/src/redux/rtnSlice.js
+Goal: Explain the slice used for 'return' or app-level transient data — in this codebase it's used for suggested users and similar small bits of state.
+
+--- Top imports ---
+1) import { createSlice } from '@reduxjs/toolkit'
+- `createSlice` to create reducers and actions.
+
+--- Initial state ---
+2) const initialState = { suggestedUsers: [] }
+- `suggestedUsers`: an array holding recommended accounts for the current user.
+
+--- Slice ---
+3) const rtnSlice = createSlice({
+    name: 'rtn',
+    initialState,
+    reducers: {
+        setSuggestedUsers(state, action) { state.suggestedUsers = action.payload }
+    }
+})
+- Reducer `setSuggestedUsers` replaces the `suggestedUsers` array with new data.
+
+4) export const { setSuggestedUsers } = rtnSlice.actions
+- Export the action creator.
+
+5) export default rtnSlice.reducer
+- Export the reducer for inclusion in the store.
+
+--- Beginner summary ---
+- `rtnSlice` stores small app-level data like suggested users. Components and hooks dispatch `setSuggestedUsers` after fetching suggestions from the server.
+
+End of rtnSlice doc.

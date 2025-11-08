@@ -1,0 +1,38 @@
+Home.jsx — Beginner-friendly explanation
+
+File path: frontend/src/components/Home.jsx
+Purpose: The top-level view that composes the main layout of the app's home page: left sidebar, feed (center), and right sidebar. It wires together `Feed`, `SuggestedBox`, `RightSideBar`, and possibly `CreatePost`.
+
+High-level responsibilities
+- Compose layout and arrange the primary sections.
+- Handle responsive behavior: move sidebars below or hide them on small screens.
+- Provide top-level actions like creating a post or opening a modal.
+
+Typical imports
+- LeftSideBar, RightSideBar, Feed, CreatePost, SuggestedBox, Posts
+- useSelector to read logged-in user
+
+Layout notes
+- Common pattern: three-column layout on large screens:
+  - left column: navigation (LeftSideBar)
+  - center column: Feed
+  - right column: suggestions and trending (RightSideBar / SuggestedBox)
+
+Implementation details
+- Use CSS grid or flexbox with Tailwind for responsive columns: `grid grid-cols-1 md:grid-cols-3 gap-4` then set the center column to span 2 on medium screens: `md:col-span-2`.
+- The home page often wires `CreatePost` at the top of the Feed so users can post quickly.
+
+State & data flow
+- Home typically doesn't fetch posts itself; `Feed` does that. Home passes small props (like current user) to sidebars.
+
+Testing and debugging
+- Ensure layout collapses gracefully on small screens (Left/Right hidden or placed below the main feed).
+- Verify that clicking "Create Post" opens the `CreatePost` component/modal and that feed refreshes after posting.
+
+Accessibility & UX
+- Ensure keyboard focus is handled when a modal opens (trap focus inside the CreatePost modal).
+- For long pages, provide skip-links for accessibility to jump to the main feed.
+
+Next reading
+- `docs/components/feed.txt` for feed fetching logic
+- `docs/components/createPost.txt` for post creation workflow

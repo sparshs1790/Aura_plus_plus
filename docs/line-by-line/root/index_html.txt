@@ -1,0 +1,42 @@
+index.html — Line-by-line, token-level explanation (for absolute beginners)
+
+File: frontend/index.html
+Goal: Explain the HTML host file for the frontend app (Vite), the `root` element where React mounts, and example meta tags.
+
+--- Top-level structure ---
+1) <!doctype html>
+- Declares the document type as HTML5.
+
+2) <html lang="en">
+- Root HTML element; `lang` helps accessibility and search engines.
+
+3) <head>
+- Metadata and resources live inside the head.
+
+4) <meta charset="UTF-8" />
+- Character encoding for the document.
+
+5) <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+- Responsive viewport tag so the layout scales correctly on mobile devices.
+
+6) <title>Aura</title>
+- The page title shown in the browser tab.
+
+7) </head>
+
+8) <body>
+- Visual content goes inside the body.
+
+9) <div id="root"></div>
+- This empty div is where React mounts the application via `ReactDOM.createRoot(document.getElementById('root'))`.
+
+10) <script type="module" src="/src/main.jsx"></script>
+- Vite loads the ES module entry `src/main.jsx` which bootstraps the React app. `type="module"` enables native ES module loading in modern browsers.
+
+11) </body>
+12) </html>
+
+--- Beginner summary ---
+- `index.html` is the static host file for the SPA. It provides the `root` element where React renders and references the JS entry built/served by Vite.
+
+End of index.html doc.

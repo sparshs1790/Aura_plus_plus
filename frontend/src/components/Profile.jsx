@@ -232,7 +232,8 @@ const Profile = () => {
       <CommentDialog
         open={commentDialogOpen}
         setOpen={setCommentDialogOpen}
-        // selectedPost={selectedPost}
+        // Pass the currently displayed posts (profile posts or saved) so navigation is scoped to this profile
+        scopePosts={displayedPost}
       />
       <FollowListDialog open={followersOpen} setOpen={setFollowersOpen} userId={userProfile?._id} type='followers' />
       <FollowListDialog open={followingOpen} setOpen={setFollowingOpen} userId={userProfile?._id} type='following' />

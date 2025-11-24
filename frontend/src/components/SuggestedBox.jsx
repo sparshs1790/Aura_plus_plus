@@ -1,11 +1,11 @@
-import React, { useRef } from 'react'
-import { useDispatch, useSelector } from 'react-redux'
-import { Link } from 'react-router-dom';
-import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
-import axios from 'axios';
-import { toast } from 'sonner';
-import { setAuthUser, setSuggestedUsers } from '@/redux/authSlice';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+    import React, { useRef } from 'react'
+    import { useDispatch, useSelector } from 'react-redux'
+    import { Link } from 'react-router-dom';
+    import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
+    import axios from 'axios';
+    import { toast } from 'sonner';
+    import { setAuthUser, setSuggestedUsers } from '@/redux/authSlice';
+    import { ChevronLeft, ChevronRight } from 'lucide-react';
 
 const SuggestedBox = () => {
     const dispatch = useDispatch();

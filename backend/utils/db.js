@@ -1,4 +1,6 @@
 import mongoose from "mongoose";
+import dotenv from "dotenv";
+dotenv.config();
 //database connection is not fast..like it may take time
 //so we have used async await
 const connectDB = async () => {

@@ -13,11 +13,6 @@ const FollowListDialog = ({ open, setOpen, userId, type = 'followers' }) => {
   const { user, userProfile } = useSelector(store => store.auth);
      const url = import.meta.env.VITE_URL || 'http://localhost:5000';
 
-
-  //type can be followers or following
-  //if type is followers then it will show the followers of the user
-  //if type is following then it will show the following of the user
-
   const title = type === 'following' ? 'Following' : 'Followers';
 
   const followingSet = useMemo(() => new Set(user?.following?.map(id => String(id)) || []), [user]);
